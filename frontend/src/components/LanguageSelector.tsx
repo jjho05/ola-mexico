@@ -46,7 +46,7 @@ async function detectCountryLang(): Promise<string | null> {
 }
 
 export function LanguageSelector() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [ready, setReady] = React.useState(false);
 
   React.useEffect(() => {
