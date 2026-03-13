@@ -1,6 +1,6 @@
 ---
 title: Ola México
-emoji: 🇲🇽
+emoji: 🌮
 colorFrom: green
 colorTo: red
 sdk: docker
