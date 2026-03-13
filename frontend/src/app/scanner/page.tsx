@@ -9,6 +9,7 @@ export default function ScannerPage() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showOriginal, setShowOriginal] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -124,11 +125,11 @@ export default function ScannerPage() {
               </div>
             </div>
             
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-4">
               <div className="flex-1 bg-green-50 p-2 rounded-xl flex items-center gap-2">
                 <Languages className="text-green-600" size={18} />
                 <span className="text-xs font-bold uppercase text-green-700">
-                  {result?.target_lang ? `ES ➜ ${String(result.target_lang).toUpperCase()}` : "Traducción"}
+                  {result?.target_lang ? `${String(result.source_lang || 'ES').toUpperCase()} ➜ ${String(result.target_lang).toUpperCase()}` : "Traducción"}
                 </span>
               </div>
               <div className="flex-1 bg-blue-50 p-2 rounded-xl flex items-center gap-2">
@@ -137,6 +138,16 @@ export default function ScannerPage() {
                   {result?.target_currency ? `MXN ➜ ${String(result.target_currency).toUpperCase()}` : "Conversión"}
                 </span>
               </div>
+            </div>
+            <div className="flex items-center gap-2 mb-6">
+              <label className="text-xs font-semibold text-gray-600">Mostrar original</label>
+              <button
+                onClick={() => setShowOriginal((v) => !v)}
+                className={`w-10 h-6 rounded-full transition-colors ${showOriginal ? 'bg-[var(--primary)]' : 'bg-gray-200'}`}
+                aria-pressed={showOriginal}
+              >
+                <span className={`block w-4 h-4 bg-white rounded-full transition-transform ${showOriginal ? 'translate-x-4' : 'translate-x-1'}`} />
+              </button>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -149,10 +160,15 @@ export default function ScannerPage() {
                 </div>
               )}
               {(Array.isArray(result.items) ? result.items : []).map((item: any, i: number) => (
-                <div key={i} className="border-b pb-4 last:border-0">
-                  <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">{item.original}</p>
+                <div key={`${item.category || 'item'}-${i}`} className="border-b pb-4 last:border-0">
+                  {item.category ? (
+                    <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">{item.category}</p>
+                  ) : null}
+                  {showOriginal && item.original ? (
+                    <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">{item.original}</p>
+                  ) : null}
                   <div className="flex justify-between items-center mt-1">
-                    <p className="font-bold text-lg text-gray-900">{item.translated}</p>
+                    <p className="font-bold text-lg text-gray-900">{item.translated || item.original}</p>
                     <p className="font-black text-green-600">
                       {item.currency || result?.target_currency || "MXN"} {Number(item.price_target || item.price_mxn || 0).toLocaleString()}
                     </p>

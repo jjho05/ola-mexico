@@ -22,18 +22,20 @@ class VisionService:
 
         image_b64 = base64.b64encode(image_bytes).decode("utf-8")
         prompt = (
-            "Eres un asistente que extrae platillos de un menu en imagen.\n"
+            "Extrae items de un menu en imagen.\n"
             f"Idioma objetivo: {target_lang}.\n"
             "Devuelve SOLO JSON valido con esta estructura:\n"
             "{"
+            '"source_lang": "string",'
             '"items": ['
-            '{"name_es": "string", "name_translated": "string", "price_mxn": 0.0}'
+            '{"name": "string", "translated": "string", "price_mxn": 0.0, "category": "string"}'
             "]"
             "}\n"
             "Reglas:\n"
             "- price_mxn debe ser numero decimal en MXN.\n"
             "- Si no hay precio, omite el item.\n"
-            "- name_translated debe estar en el idioma objetivo.\n"
+            "- translated debe estar en el idioma objetivo.\n"
+            "- category puede ser vacio si no hay.\n"
             "- No agregues texto fuera del JSON."
         )
 
@@ -118,16 +120,21 @@ class VisionService:
 
         parsed = self._extract_json(text) if text else None
         items_raw: List[Dict[str, Any]] = []
+        source_lang = ""
         if parsed and isinstance(parsed.get("items"), list):
             items_raw = parsed["items"]
+            source_lang = str(parsed.get("source_lang", "")).strip()
 
         processed_items = []
         for item in items_raw:
             try:
-                name_es = str(item.get("name_es", "")).strip()
-                name_translated = str(item.get("name_translated", "")).strip() or name_es
+                name_es = str(item.get("name", "")).strip()
+                name_translated = str(item.get("translated", "")).strip() or name_es
                 price_mxn = float(item.get("price_mxn"))
+                category = str(item.get("category", "")).strip()
             except Exception:
+                continue
+            if not name_es or price_mxn <= 0:
                 continue
             converted_price = await currency_service.convert(price_mxn, target_currency)
             processed_items.append(
@@ -137,13 +144,25 @@ class VisionService:
                     "price_mxn": price_mxn,
                     "price_target": converted_price,
                     "currency": target_currency,
+                    "category": category,
                 }
             )
 
+        # de-duplicate
+        deduped = []
+        seen = set()
+        for item in processed_items:
+            key = (item["original"].lower(), item["price_mxn"])
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(item)
+
         return {
-            "items": processed_items,
+            "items": deduped,
             "target_lang": target_lang,
             "target_currency": target_currency,
+            "source_lang": source_lang,
             "status": "success" if processed_items else "no_data",
             "source": "gemini",
         }
