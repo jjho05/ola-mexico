@@ -88,6 +88,20 @@ async def register_merchant(business: Business):
     MOCK_BUSINESSES.append(business.dict())
     return {"message": "Supabase no configurado, guardado en memoria local", "business": business}
 
+@app.post("/api/merchant/update-location")
+async def update_merchant_location(merchant_id: int, address: str):
+    try:
+        data = {"address": address}
+        coords = await geo_service.geocode(address)
+        if coords:
+            data["lat"], data["lng"] = coords
+        if supabase is not None:
+            res = supabase.table("businesses").update(data).eq("id", merchant_id).execute()
+            return {"message": "Ubicacion actualizada", "data": res.data}
+    except Exception as e:
+        print(f"Update Location Error: {e}")
+    return {"message": "No se pudo actualizar"}
+
 @app.get("/api/recommendations")
 async def get_recommendations(interests: Optional[str] = None):
     # For now, just return all if no interests

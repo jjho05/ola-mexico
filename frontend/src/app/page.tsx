@@ -9,6 +9,9 @@ export default function Home() {
   const [businesses, setBusinesses] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [role, setRole] = React.useState<string | null>(null);
+  const [query, setQuery] = React.useState('');
+  const [nearby, setNearby] = React.useState<any[]>([]);
+  const [searching, setSearching] = React.useState(false);
 
   React.useEffect(() => {
     try {
@@ -33,6 +36,57 @@ export default function Home() {
     };
     fetchBusinesses();
   }, []);
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setSearching(true);
+    try {
+      let lat = null;
+      let lng = null;
+      if (navigator.geolocation) {
+        await new Promise<void>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              lat = pos.coords.latitude;
+              lng = pos.coords.longitude;
+              resolve();
+            },
+            () => resolve()
+          );
+        });
+      }
+      const params = new URLSearchParams({ query: query.trim() });
+      if (lat !== null && lng !== null) {
+        params.set('lat', String(lat));
+        params.set('lng', String(lng));
+      }
+      const response = await fetch(`/api/businesses/search?${params.toString()}`);
+      const data = await response.json();
+      setBusinesses(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const loadNearby = async () => {
+    try {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const params = new URLSearchParams({
+          lat: String(pos.coords.latitude),
+          lng: String(pos.coords.longitude),
+          radius_km: '3',
+        });
+        const response = await fetch(`/api/businesses/nearby?${params.toString()}`);
+        const data = await response.json();
+        setNearby(Array.isArray(data) ? data : []);
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (role === null) {
     return (
@@ -93,13 +147,36 @@ export default function Home() {
           </span>
         </div>
         <p className="text-[var(--muted)] font-medium">Nivela la cancha digital y apoya lo local.</p>
+        <div className="mt-4 flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Buscar local por nombre"
+            className="flex-1 p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={handleSearch}
+              className="bg-[var(--primary)] text-white font-bold px-4 py-3 rounded-xl"
+            >
+              Buscar
+            </button>
+            <button
+              onClick={loadNearby}
+              className="border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-3 rounded-xl"
+            >
+              Cerca de mí
+            </button>
+          </div>
+        </div>
       </header>
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-bold">{t('discover')}</h2>
         
         <div className="grid grid-cols-1 gap-4">
-          {loading ? (
+          {loading || searching ? (
             <div className="flex justify-center py-10">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
             </div>
@@ -118,6 +195,9 @@ export default function Home() {
                       <h3 className="font-black text-xl tracking-tight">{biz.name}</h3>
                       <p className="text-[var(--muted)] text-sm flex items-center gap-1 mt-1 font-medium">
                         <MapPin size={14} className="text-[var(--primary)]" /> {biz.address}
+                        {biz.distance_km ? (
+                          <span className="text-xs text-gray-400 ml-2">{biz.distance_km} km</span>
+                        ) : null}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-1 rounded-xl">
