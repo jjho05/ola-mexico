@@ -11,6 +11,9 @@ export default function ProfilePage() {
   const [advancedEnabled, setAdvancedEnabled] = React.useState(false);
   const [translateLang, setTranslateLang] = React.useState('en');
   const [country, setCountry] = React.useState('MX');
+  const [touristName, setTouristName] = React.useState('');
+  const [touristEmail, setTouristEmail] = React.useState('');
+  const [locationStatus, setLocationStatus] = React.useState<string | null>(null);
   const { t } = useTranslation();
 
   React.useEffect(() => {
@@ -30,6 +33,28 @@ export default function ProfilePage() {
       country,
     });
   }, [currency, advancedEnabled, translateLang, country]);
+
+  const saveTourist = async (lat?: number, lng?: number) => {
+    try {
+      const payload = {
+        name: touristName || "Turista",
+        email: touristEmail || null,
+        country,
+        preferred_currency: currency,
+        lat: lat ?? null,
+        lng: lng ?? null,
+      };
+      const response = await fetch("/api/tourists/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("error");
+      setLocationStatus("Guardado");
+    } catch {
+      setLocationStatus("Error");
+    }
+  };
 
   const handleLogout = () => {
     try {
@@ -107,6 +132,57 @@ export default function ProfilePage() {
             <option value="ko">한국어</option>
             <option value="ar">العربية</option>
           </select>
+        </div>
+
+        <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-3">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
+              <User size={20} />
+            </div>
+            <div className="text-left">
+              <span className="font-bold block text-gray-900">Registro de turista</span>
+              <span className="text-xs text-gray-500 font-medium">Guarda tu ubicación actual</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="text"
+              placeholder="Nombre"
+              className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+              value={touristName}
+              onChange={(e) => setTouristName(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email (opcional)"
+              className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+              value={touristEmail}
+              onChange={(e) => setTouristEmail(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap gap-3 items-center">
+            <button
+              className="bg-[var(--primary)] text-white font-bold px-4 py-2 rounded-xl"
+              onClick={() => {
+                setLocationStatus("Guardando...");
+                if (!navigator.geolocation) {
+                  setLocationStatus("Geolocalización no disponible");
+                  return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => {
+                    saveTourist(pos.coords.latitude, pos.coords.longitude);
+                  },
+                  () => setLocationStatus("No se pudo obtener ubicación")
+                );
+              }}
+            >
+              Guardar ubicación
+            </button>
+            {locationStatus ? (
+              <span className="text-xs text-gray-500">{locationStatus}</span>
+            ) : null}
+          </div>
         </div>
 
         <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">

@@ -8,7 +8,8 @@ import os
 from backend.api.routes import vision_router
 from backend.services.currency_service import currency_service
 from backend.database.supabase_client import supabase
-from backend.database.models import Business
+from backend.database.models import Business, Tourist
+from backend.services.geo_service import geo_service
 app = FastAPI(title="Ola México API")
 
 app.include_router(vision_router)
@@ -69,6 +70,10 @@ async def get_businesses():
 async def register_merchant(business: Business):
     try:
         data = business.dict()
+        if (not data.get("lat") or not data.get("lng")) and data.get("address"):
+            coords = await geo_service.geocode(data.get("address"))
+            if coords:
+                data["lat"], data["lng"] = coords
         # En Supabase no necesitamos ID manual si es autoincremental,
         # pero para compatibilidad con el modelo lo enviamos o dejamos que DB lo asigne
         if supabase is not None:
@@ -87,6 +92,49 @@ async def register_merchant(business: Business):
 async def get_recommendations(interests: Optional[str] = None):
     # For now, just return all if no interests
     return MOCK_BUSINESSES
+
+@app.post("/api/tourists/register")
+async def register_tourist(tourist: Tourist):
+    try:
+        data = tourist.dict()
+        if supabase is not None:
+            res = supabase.table("tourists").insert(data).execute()
+            return {"message": "Turista registrado", "data": res.data}
+    except Exception as e:
+        print(f"Tourist Register Error: {e}")
+    return {"message": "Supabase no configurado", "tourist": tourist}
+
+@app.get("/api/businesses/nearby")
+async def get_nearby_businesses(lat: float, lng: float, radius_km: float = 3.0, limit: int = 20):
+    businesses = await get_businesses()
+    results = []
+    for biz in businesses:
+        try:
+            dist = geo_service.distance_km(lat, lng, float(biz["lat"]), float(biz["lng"]))
+        except Exception:
+            continue
+        if dist <= radius_km:
+            biz_copy = dict(biz)
+            biz_copy["distance_km"] = round(dist, 2)
+            results.append(biz_copy)
+    results.sort(key=lambda b: b.get("distance_km", 9999))
+    return results[:limit]
+
+@app.get("/api/businesses/search")
+async def search_businesses(query: str, lat: Optional[float] = None, lng: Optional[float] = None, limit: int = 20):
+    businesses = await get_businesses()
+    q = query.lower().strip()
+    filtered = [b for b in businesses if q in b.get("name", "").lower()]
+    if lat is not None and lng is not None:
+        for biz in filtered:
+            try:
+                biz["distance_km"] = round(
+                    geo_service.distance_km(lat, lng, float(biz["lat"]), float(biz["lng"])), 2
+                )
+            except Exception:
+                biz["distance_km"] = None
+        filtered.sort(key=lambda b: b.get("distance_km") if b.get("distance_km") is not None else 9999)
+    return filtered[:limit]
 
 @app.get("/api/fx/convert")
 async def convert_currency(amount: float, to_currency: str):

@@ -9,27 +9,28 @@ export default function MerchantDashboard() {
   const [step, setStep] = useState(1);
   const [businessName, setBusinessName] = useState('');
   const [category, setCategory] = useState('Comida y Bebida');
+  const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/merchant/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: Math.floor(Math.random() * 1000), // Temporal
-          name: businessName,
-          category: category,
-          description: "Nuevo socio registrado durante el Mundial.",
-          tags: [category.toLowerCase()],
-          image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
-          lat: 19.4326,
-          lng: -99.1332,
-          rating: 5.0,
-          address: "Ciudad de México"
-        })
-      });
+          const response = await fetch("/api/merchant/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: Math.floor(Math.random() * 1000), // Temporal
+              name: businessName,
+              category: category,
+              description: "Nuevo socio registrado durante el Mundial.",
+              tags: [category.toLowerCase()],
+              image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+              lat: null,
+              lng: null,
+              rating: 5.0,
+              address: address || "Ciudad de México"
+            })
+          });
       
       const data = await response.json();
       console.log("Registered:", data);
@@ -102,6 +103,16 @@ export default function MerchantDashboard() {
                 <option>Servicios</option>
                 <option>Alojamiento</option>
               </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Dirección</label>
+              <input 
+                type="text" 
+                placeholder="Ej. Calle Bolívar 54, CDMX"
+                className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
             <button 
               onClick={() => handleRegister()}

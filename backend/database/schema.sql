@@ -25,6 +25,18 @@ CREATE TABLE swipes (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 3. Turistas
+CREATE TABLE tourists (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT,
+    country TEXT,
+    preferred_currency TEXT,
+    lat FLOAT,
+    lng FLOAT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- RLS (Row Level Security) - Simplificado para el Nacional
 ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read access" ON businesses FOR SELECT USING (true);
