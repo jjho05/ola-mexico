@@ -1,194 +1,152 @@
-import httpx
-from typing import Dict, Any
-from backend.services.currency_service import currency_service
+import base64
+import json
 import os
-import re
-import io
+from typing import Any, Dict, List, Optional
 
-try:
-    from PIL import Image
-    import pytesseract
-except Exception:  # Optional local OCR deps
-    Image = None
-    pytesseract = None
+import httpx
+
+from backend.services.currency_service import currency_service
+
 
 class VisionService:
     def __init__(self):
-        # Hugging Face Inference API Config (Serverless)
-        self.hf_token = os.getenv("HF_TOKEN", "")
-        # HF Inference API (router) - models list
-        self.ocr_model_ids = [
-            "microsoft/trocr-small-printed",
-            "microsoft/trocr-base-printed",
-        ]
-        self.hf_router_base = "https://router.huggingface.co/hf-inference/models"
-        self.translate_api_url = "https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M"
+        self.gemini_key = os.getenv("GEMINI_API_KEY", "")
+        self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        self.endpoint = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
+        )
 
-    async def call_hf_api(self, url: str, payload: Any, is_image: bool = False) -> Any:
-        if not self.hf_token:
-            return None # Fallback al mock si no hay token
-            
-        headers = {"Authorization": f"Bearer {self.hf_token}"}
-        async with httpx.AsyncClient() as client:
+    async def call_gemini(self, image_bytes: bytes, mime_type: str, target_lang: str) -> Dict[str, Any]:
+        if not self.gemini_key:
+            return {"error": "GEMINI_API_KEY missing"}
+
+        image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+        prompt = (
+            "Eres un asistente que extrae platillos de un menu en imagen.\n"
+            f"Idioma objetivo: {target_lang}.\n"
+            "Devuelve SOLO JSON valido con esta estructura:\n"
+            "{"
+            '"items": ['
+            '{"name_es": "string", "name_translated": "string", "price_mxn": 0.0}'
+            "]"
+            "}\n"
+            "Reglas:\n"
+            "- price_mxn debe ser numero decimal en MXN.\n"
+            "- Si no hay precio, omite el item.\n"
+            "- name_translated debe estar en el idioma objetivo.\n"
+            "- No agregues texto fuera del JSON."
+        )
+
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt},
+                        {
+                            "inline_data": {
+                                "mime_type": mime_type or "image/jpeg",
+                                "data": image_b64,
+                            }
+                        },
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "response_mime_type": "application/json"
+            },
+        }
+
+        headers = {
+            "x-goog-api-key": self.gemini_key,
+            "Content-Type": "application/json",
+        }
+
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.post(self.endpoint, headers=headers, json=payload)
+            if response.status_code != 200:
+                return {
+                    "error": "Gemini API request failed",
+                    "status_code": response.status_code,
+                    "body": response.text[:500],
+                }
+            return response.json()
+
+    def _extract_json(self, text: str) -> Optional[Dict[str, Any]]:
+        try:
+            return json.loads(text)
+        except Exception:
+            pass
+        # Try to extract JSON object from text
+        start = text.find("{")
+        end = text.rfind("}")
+        if start >= 0 and end > start:
             try:
-                if is_image:
-                    response = await client.post(url, headers=headers, content=payload)
-                else:
-                    response = await client.post(url, headers=headers, json=payload)
-                if response.status_code != 200:
-                    return {
-                        "error": "HF API request failed",
-                        "status_code": response.status_code,
-                        "body": response.text[:500]
-                    }
-                return response.json()
-            except Exception as e:
-                print(f"HF API Error: {e}")
-                return {"error": str(e)}
+                return json.loads(text[start : end + 1])
+            except Exception:
+                return None
+        return None
 
     async def process_menu_image_cloud(self, file, target_lang: str, target_currency: str) -> Dict[str, Any]:
-        """
-        1. Envía imagen a HF para OCR.
-        2. Envía texto a HF para Traducción Cultural.
-        3. Convierte precios usando CurrencyService.
-        """
-        # HEADER PARA HF API
         file_content = await file.read()
-        
-        # 1. OCR (Microsoft TrOCR)
-        ocr_result = None
-        ocr_error = None
-        for model_id in self.ocr_model_ids:
-            url = f"{self.hf_router_base}/{model_id}"
-            ocr_result = await self.call_hf_api(url, file_content, is_image=True)
-            if isinstance(ocr_result, list) and ocr_result:
-                break
-            if isinstance(ocr_result, dict) and ocr_result.get("generated_text"):
-                break
-            if isinstance(ocr_result, dict) and ocr_result.get("error"):
-                ocr_error = ocr_result.get("error")
-                if ocr_result.get("status_code"):
-                    ocr_error = f"{ocr_error} (status {ocr_result.get('status_code')})"
-        
-        # 2. Análisis y Traducción (Simplificado para el Mundial)
-        raw_text = ""
-        if isinstance(ocr_result, list) and ocr_result:
-            raw_text = ocr_result[0].get("generated_text", "")
-        elif isinstance(ocr_result, dict):
-            if "generated_text" in ocr_result:
-                raw_text = ocr_result.get("generated_text", "")
-            elif "error" in ocr_result:
-                ocr_error = ocr_result.get("error")
-                if ocr_result.get("status_code"):
-                    ocr_error = f"{ocr_error} (status {ocr_result.get('status_code')})"
+        mime_type = getattr(file, "content_type", None) or "image/jpeg"
 
-        # Fallback a OCR local si HF falla
-        ocr_source = "hf" if self.hf_token else "none"
-        if not raw_text and Image is not None and pytesseract is not None:
+        gemini_response = await self.call_gemini(file_content, mime_type, target_lang)
+        if "error" in gemini_response:
+            return {
+                "items": [],
+                "error": gemini_response.get("error"),
+                "error_details": {
+                    "status_code": gemini_response.get("status_code"),
+                    "body": gemini_response.get("body"),
+                },
+                "target_lang": target_lang,
+                "target_currency": target_currency,
+                "status": "error",
+                "source": "gemini",
+            }
+
+        # Parse response
+        text = ""
+        try:
+            candidates = gemini_response.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                if parts:
+                    text = parts[0].get("text", "")
+        except Exception:
+            text = ""
+
+        parsed = self._extract_json(text) if text else None
+        items_raw: List[Dict[str, Any]] = []
+        if parsed and isinstance(parsed.get("items"), list):
+            items_raw = parsed["items"]
+
+        processed_items = []
+        for item in items_raw:
             try:
-                image = Image.open(io.BytesIO(file_content))
-                raw_text = pytesseract.image_to_string(image, lang="spa+eng")
-                ocr_source = "local"
-                ocr_error = None
-            except Exception as e:
-                if ocr_error:
-                    ocr_error = f"{ocr_error}; local OCR failed: {e}"
-                else:
-                    ocr_error = f"Local OCR failed: {e}"
-        
-        # 3. Traducción Cultural (Simulada para mantener el flujo pero preparada para NLLB-200)
-        # En una versión full, enviaríamos el 'raw_text' a self.translate_api_url
-
-        # Parse por bloques: detectar nombres y luego asociar precios cercanos
-        items = []
-        if raw_text:
-            lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
-            price_line_re = re.compile(r"^\$?\s*[0-9]{1,4}(?:[.,][0-9]{1,2})?\s*$")
-
-            desc_stopwords = (
-                "rellenas", "acompañadas", "orden", "salsa", "especial",
-                "tradicional", "delicioso", "deliciosa", "crujientes",
-                "bañados", "bebidas", "refresco", "botella", "lata",
+                name_es = str(item.get("name_es", "")).strip()
+                name_translated = str(item.get("name_translated", "")).strip() or name_es
+                price_mxn = float(item.get("price_mxn"))
+            except Exception:
+                continue
+            converted_price = await currency_service.convert(price_mxn, target_currency)
+            processed_items.append(
+                {
+                    "original": name_es,
+                    "translated": name_translated,
+                    "price_mxn": price_mxn,
+                    "price_target": converted_price,
+                    "currency": target_currency,
+                }
             )
 
-            def is_candidate_name(text: str) -> bool:
-                if len(text) > 40:
-                    return False
-                lowered = text.lower()
-                if any(word in lowered for word in desc_stopwords):
-                    return False
-                if re.search(r"[.,:;]", text):
-                    return False
-                return True
-
-            used_name_idx = set()
-            for idx, line in enumerate(lines):
-                if not price_line_re.fullmatch(line):
-                    continue
-                price_str = line.replace("$", "").replace(",", ".").strip()
-                try:
-                    price = float(price_str)
-                except Exception:
-                    continue
-                name = None
-                for j in range(idx - 1, -1, -1):
-                    if j in used_name_idx:
-                        continue
-                    candidate = lines[j]
-                    if is_candidate_name(candidate):
-                        name = candidate
-                        used_name_idx.add(j)
-                        break
-                if name:
-                    items.append({"name": name, "price_mxn": price})
-
-            if not items:
-                # Fallback to window parse
-                cleaned = re.sub(r"\\s+", " ", raw_text).strip()
-                price_matches = list(re.finditer(r"(?i)(?:mxn|\\$)?\\s*([0-9]{1,4}(?:[\\.,][0-9]{1,2})?)", cleaned))
-                for match in price_matches:
-                    price_str = match.group(1).replace(",", ".")
-                    try:
-                        price = float(price_str)
-                    except Exception:
-                        continue
-                    prefix = cleaned[:match.start()].strip()
-                    words = prefix.split(" ")
-                    name = " ".join(words[-6:]).strip()
-                    if name:
-                        items.append({"name": name, "price_mxn": price})
-
-            # De-duplicate by name+price
-            seen = set()
-            deduped = []
-            for item in items:
-                key = (item["name"].lower(), item["price_mxn"])
-                if key in seen:
-                    continue
-                seen.add(key)
-                deduped.append(item)
-            items = deduped
-        
-        processed_items = []
-        for item in items:
-            converted_price = await currency_service.convert(item["price_mxn"], target_currency)
-            processed_items.append({
-                "original": item["name"],
-                "translated": item["name"],
-                "price_mxn": item["price_mxn"],
-                "price_target": converted_price,
-                "currency": target_currency
-            })
-            
         return {
             "items": processed_items,
-            "raw_text": raw_text,
-            "ocr_error": ocr_error,
-            "ocr_source": ocr_source,
             "target_lang": target_lang,
             "target_currency": target_currency,
             "status": "success" if processed_items else "no_data",
-            "info": "Procesado con Hugging Face Inference API" if self.hf_token else "Token faltante o sin OCR"
+            "source": "gemini",
         }
+
 
 vision_service = VisionService()

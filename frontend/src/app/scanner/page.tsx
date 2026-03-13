@@ -29,7 +29,18 @@ export default function ScannerPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("/api/vision/scan-menu", {
+      let targetLang = "en";
+      let targetCurrency = "USD";
+      try {
+        const settingsRaw = localStorage.getItem('ola-mexico-settings');
+        if (settingsRaw) {
+          const settings = JSON.parse(settingsRaw);
+          if (settings.language) targetLang = settings.language;
+          if (settings.currency) targetCurrency = settings.currency;
+        }
+      } catch {}
+
+      const response = await fetch(`/api/vision/scan-menu?target_lang=${encodeURIComponent(targetLang)}&target_currency=${encodeURIComponent(targetCurrency)}`, {
         method: "POST",
         body: formData
       });
@@ -37,15 +48,6 @@ export default function ScannerPage() {
         throw new Error(`Scan failed with status ${response.status}`);
       }
       const data = await response.json();
-      try {
-        const settingsRaw = localStorage.getItem('ola-mexico-settings');
-        if (settingsRaw) {
-          const settings = JSON.parse(settingsRaw);
-          if (settings.currency && settings.currency !== data.target_currency) {
-            data.target_currency = settings.currency;
-          }
-        }
-      } catch {}
       setResult(data);
     } catch (error) {
       console.error("Scan error:", error);
@@ -165,14 +167,9 @@ export default function ScannerPage() {
           {error}
         </div>
       )}
-      {result?.ocr_error && (
+      {result?.error && (
         <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-sm">
-          OCR error: {result.ocr_error}
-        </div>
-      )}
-      {result?.ocr_source === "local" && !result?.ocr_error && (
-        <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-blue-700 text-sm">
-          OCR local activado (modo fallback).
+          Error: {result.error}
         </div>
       )}
 

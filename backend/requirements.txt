@@ -5,5 +5,3 @@ python-dotenv
 httpx
 supabase
 python-multipart
-pillow
-pytesseract

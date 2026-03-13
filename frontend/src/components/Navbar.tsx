@@ -19,7 +19,7 @@ const Navbar = () => {
         <Link href="/merchant" className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] border-2 border-[var(--primary)] px-3 py-1.5 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm">
           Portal Socio
         </Link>
-        <button className="p-2 text-[var(--muted)] hover:bg-gray-100 rounded-full transition-colors">
+        <button className="p-2 text-[var(--muted)] hover:bg-gray-100 rounded-full transition-colors" title="Buscar (próximamente)" disabled>
           <Search size={20} />
         </button>
       </div>

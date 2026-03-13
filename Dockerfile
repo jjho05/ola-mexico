@@ -13,12 +13,6 @@ RUN npm run build
 FROM python:3.11-slim
 WORKDIR /app
 
-# Instalar dependencias del sistema para OCR local
-RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
-    tesseract-ocr-spa \
-    && rm -rf /var/lib/apt/lists/*
-
 # Instalar dependencias de Python
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
