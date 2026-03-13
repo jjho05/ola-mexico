@@ -37,6 +37,15 @@ export default function ScannerPage() {
         throw new Error(`Scan failed with status ${response.status}`);
       }
       const data = await response.json();
+      try {
+        const settingsRaw = localStorage.getItem('ola-mexico-settings');
+        if (settingsRaw) {
+          const settings = JSON.parse(settingsRaw);
+          if (settings.currency && settings.currency !== data.target_currency) {
+            data.target_currency = settings.currency;
+          }
+        }
+      } catch {}
       setResult(data);
     } catch (error) {
       console.error("Scan error:", error);

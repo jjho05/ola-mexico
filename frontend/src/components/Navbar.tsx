@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, Bell } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 
 const Navbar = () => {
@@ -21,10 +21,6 @@ const Navbar = () => {
         </Link>
         <button className="p-2 text-[var(--muted)] hover:bg-gray-100 rounded-full transition-colors">
           <Search size={20} />
-        </button>
-        <button className="p-2 text-[var(--muted)] hover:bg-gray-100 rounded-full transition-colors relative">
-          <Bell size={20} />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--accent)] rounded-full border-2 border-white"></span>
         </button>
       </div>
     </nav>

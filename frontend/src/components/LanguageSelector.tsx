@@ -75,11 +75,11 @@ export function LanguageSelector() {
         value={i18n.language}
         onChange={(e) => {
           const lang = e.target.value;
-          i18n.changeLanguage(lang);
-          try {
-            localStorage.setItem('ola-mexico-lang', lang);
-          } catch {}
-        }}
+        i18n.changeLanguage(lang);
+        try {
+          localStorage.setItem('ola-mexico-lang', lang);
+        } catch {}
+      }}
       >
         {LANGUAGES.map((lang) => (
           <option key={lang.code} value={lang.code}>{lang.label}</option>

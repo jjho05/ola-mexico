@@ -1,9 +1,28 @@
 'use client';
 
 import React from 'react';
-import { User, Settings, Globe, CreditCard, LogOut, ChevronRight } from 'lucide-react';
+import { User, Settings, Globe, CreditCard, LogOut } from 'lucide-react';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { loadSettings, saveSettings } from '@/lib/settings';
 
 export default function ProfilePage() {
+  const [currency, setCurrency] = React.useState('USD');
+  const [advancedEnabled, setAdvancedEnabled] = React.useState(false);
+
+  React.useEffect(() => {
+    const settings = loadSettings();
+    setCurrency(settings.currency);
+    setAdvancedEnabled(settings.advancedEnabled);
+  }, []);
+
+  React.useEffect(() => {
+    saveSettings({
+      language: localStorage.getItem('ola-mexico-lang') || 'es',
+      currency,
+      advancedEnabled,
+    });
+  }, [currency, advancedEnabled]);
+
   const handleLogout = () => {
     try {
       localStorage.removeItem('ola-mexico-role');
@@ -43,45 +62,65 @@ export default function ProfilePage() {
 
       <div className="flex flex-col gap-3 mt-4">
         <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 pl-2">Preferencias</h3>
-        
-        <button className="w-full bg-white p-5 rounded-2xl flex items-center justify-between shadow-sm border border-gray-100 hover:border-gray-300 transition-colors">
+
+        <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
               <Globe size={20} />
             </div>
             <div className="text-left">
               <span className="font-bold block text-gray-900">Idioma Principal</span>
-              <span className="text-xs text-gray-500 font-medium">Inglés (Traducción Activa)</span>
+              <span className="text-xs text-gray-500 font-medium">Elige tu idioma</span>
             </div>
           </div>
-          <ChevronRight className="text-gray-300" />
-        </button>
+          <LanguageSelector />
+        </div>
 
-        <button className="w-full bg-white p-5 rounded-2xl flex items-center justify-between shadow-sm border border-gray-100 hover:border-gray-300 transition-colors">
+        <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-green-50 text-green-600 rounded-xl">
               <CreditCard size={20} />
             </div>
             <div className="text-left">
               <span className="font-bold block text-gray-900">Moneda a Mostrar</span>
-              <span className="text-xs text-gray-500 font-medium">USD ($)</span>
+              <span className="text-xs text-gray-500 font-medium">Conversión automática</span>
             </div>
           </div>
-          <ChevronRight className="text-gray-300" />
-        </button>
+          <select
+            className="border border-gray-200 rounded-lg px-2 py-1 text-sm bg-white"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+          >
+            <option value="USD">USD ($)</option>
+            <option value="MXN">MXN ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="JPY">JPY (¥)</option>
+          </select>
+        </div>
 
-        <button className="w-full bg-white p-5 rounded-2xl flex items-center justify-between shadow-sm border border-gray-100 hover:border-gray-300 transition-colors">
+        <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-gray-100 text-gray-600 rounded-xl">
               <Settings size={20} />
             </div>
             <div className="text-left">
               <span className="font-bold block text-gray-900">Ajustes Avanzados</span>
-              <span className="text-xs text-gray-500 font-medium">Notificaciones, Privacidad</span>
+              <span className="text-xs text-gray-500 font-medium">Funciones opcionales</span>
             </div>
           </div>
-          <ChevronRight className="text-gray-300" />
-        </button>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={advancedEnabled}
+              onChange={(e) => setAdvancedEnabled(e.target.checked)}
+            />
+            <div className="w-10 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[var(--primary)] transition-colors relative">
+              <span className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></span>
+            </div>
+          </label>
+        </div>
       </div>
       
       <div className="mt-8 text-center px-4">
