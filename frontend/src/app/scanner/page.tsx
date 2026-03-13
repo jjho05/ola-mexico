@@ -14,7 +14,7 @@ export default function ScannerPage() {
     try {
       // En producción, aquí enviaríamos el archivo real capturado por la cámara
       // Por ahora simulamos el envío para probar la integración con el backend
-      const response = await fetch("http://localhost:8000/api/vision/scan-menu", {
+      const response = await fetch("/api/vision/scan-menu", {
         method: "POST",
         body: new FormData() // Aquí iría el archivo real
       });

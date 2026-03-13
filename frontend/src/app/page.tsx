@@ -31,7 +31,7 @@ export default function Home() {
   React.useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/businesses");
+        const response = await fetch("/api/businesses");
         const data = await response.json();
         setBusinesses(data);
       } catch (error) {

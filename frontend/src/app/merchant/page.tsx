@@ -12,7 +12,7 @@ export default function MerchantDashboard() {
   const handleRegister = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/merchant/register", {
+      const response = await fetch("/api/merchant/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
