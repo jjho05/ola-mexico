@@ -2,8 +2,10 @@
 
 import React, { useRef, useState } from 'react';
 import { Camera, RefreshCw, Languages, Coins } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ScannerPage() {
+  const { t } = useTranslation();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export default function ScannerPage() {
         const settingsRaw = localStorage.getItem('ola-mexico-settings');
         if (settingsRaw) {
           const settings = JSON.parse(settingsRaw);
-          if (settings.language) targetLang = settings.language;
+          if (settings.translateLang) targetLang = settings.translateLang;
           if (settings.currency) targetCurrency = settings.currency;
         }
       } catch {}
@@ -60,8 +62,8 @@ export default function ScannerPage() {
   return (
     <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto h-full">
       <header>
-        <h1 className="text-2xl font-bold">AI Menu Scanner</h1>
-        <p className="text-gray-500">Translate and convert prices in real-time.</p>
+        <h1 className="text-2xl font-bold">{t('menu_scanner_title')}</h1>
+        <p className="text-gray-500">{t('menu_scanner_subtitle')}</p>
       </header>
 
       <div className="relative aspect-square w-full bg-black rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center border-4 border-white">
@@ -74,16 +76,16 @@ export default function ScannerPage() {
               <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-white/50">
                 <Camera size={40} />
               </div>
-              <span className="font-bold text-lg">Tomar Foto del Menú</span>
+              <span className="font-bold text-lg">{t('take_photo')}</span>
             </button>
             <button
               onClick={handlePickUpload}
               className="text-sm font-semibold text-white/90 underline underline-offset-4"
             >
-              Subir imagen desde tu dispositivo
+              {t('upload_image')}
             </button>
             <span className="text-xs text-white/70">
-              En PC usa “Subir imagen”. En móvil, el botón de cámara abre la cámara.
+              {t('upload_hint')}
             </span>
           </div>
         )}
@@ -98,7 +100,7 @@ export default function ScannerPage() {
         {result && (
           <div className="absolute inset-0 bg-white/95 p-6 overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="font-bold text-xl">Menú Traducido</h2>
+              <h2 className="font-bold text-xl">{t('menu_translated')}</h2>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setResult(null)}
@@ -140,7 +142,7 @@ export default function ScannerPage() {
             <div className="flex flex-col gap-4">
               {(Array.isArray(result.items) ? result.items : []).length === 0 && (
                 <div className="text-sm text-gray-500">
-                  No se detectaron platillos. Intenta con otra foto.
+                  {t('no_items')}
                   {result?.raw_text ? (
                     <div className="mt-2 text-xs text-gray-400">Texto detectado: {result.raw_text}</div>
                   ) : null}

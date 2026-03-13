@@ -2,12 +2,14 @@ export type Settings = {
   language: string;
   currency: string;
   advancedEnabled: boolean;
+  translateLang?: string;
 };
 
 const DEFAULT_SETTINGS: Settings = {
   language: 'es',
   currency: 'USD',
   advancedEnabled: false,
+  translateLang: 'en',
 };
 
 export function loadSettings(): Settings {

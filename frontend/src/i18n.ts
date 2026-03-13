@@ -9,7 +9,23 @@ const resources = {
       "discover": "Discover",
       "swipe": "Swipe",
       "scanner": "Scanner",
-      "profile": "Profile"
+      "profile": "Profile",
+      "home": "Home",
+      "menu_scanner_title": "AI Menu Scanner",
+      "menu_scanner_subtitle": "Translate and convert prices in real-time.",
+      "menu_translated": "Translated Menu",
+      "take_photo": "Take menu photo",
+      "upload_image": "Upload image",
+      "upload_hint": "On PC use Upload. On mobile, the camera button opens the camera.",
+      "no_items": "No items detected. Try another photo.",
+      "preferences": "Preferences",
+      "language_primary": "Primary language",
+      "language_help": "Choose your app language",
+      "currency_display": "Display currency",
+      "currency_help": "Automatic conversion",
+      "advanced_settings": "Advanced settings",
+      "advanced_help": "Optional features",
+      "portal_partner": "Partner portal"
     }
   },
   es: {
@@ -18,7 +34,23 @@ const resources = {
       "discover": "Descubrir",
       "swipe": "Deslizar",
       "scanner": "Escáner",
-      "profile": "Perfil"
+      "profile": "Perfil",
+      "home": "Inicio",
+      "menu_scanner_title": "Escáner de Menú AI",
+      "menu_scanner_subtitle": "Traduce y convierte precios en tiempo real.",
+      "menu_translated": "Menú Traducido",
+      "take_photo": "Tomar foto del menú",
+      "upload_image": "Subir imagen",
+      "upload_hint": "En PC usa Subir. En móvil, el botón de cámara abre la cámara.",
+      "no_items": "No se detectaron platillos. Intenta con otra foto.",
+      "preferences": "Preferencias",
+      "language_primary": "Idioma principal",
+      "language_help": "Elige el idioma de la app",
+      "currency_display": "Moneda a mostrar",
+      "currency_help": "Conversión automática",
+      "advanced_settings": "Ajustes avanzados",
+      "advanced_help": "Funciones opcionales",
+      "portal_partner": "Portal socio"
     }
   },
   ko: {

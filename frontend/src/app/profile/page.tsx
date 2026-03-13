@@ -1,18 +1,22 @@
 'use client';
 
 import React from 'react';
-import { User, Settings, Globe, CreditCard, LogOut } from 'lucide-react';
+import { User, Settings, Globe, CreditCard, LogOut, Languages } from 'lucide-react';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { loadSettings, saveSettings } from '@/lib/settings';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfilePage() {
   const [currency, setCurrency] = React.useState('USD');
   const [advancedEnabled, setAdvancedEnabled] = React.useState(false);
+  const [translateLang, setTranslateLang] = React.useState('en');
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const settings = loadSettings();
     setCurrency(settings.currency);
     setAdvancedEnabled(settings.advancedEnabled);
+    setTranslateLang(settings.translateLang || 'en');
   }, []);
 
   React.useEffect(() => {
@@ -20,8 +24,9 @@ export default function ProfilePage() {
       language: localStorage.getItem('ola-mexico-lang') || 'es',
       currency,
       advancedEnabled,
+      translateLang,
     });
-  }, [currency, advancedEnabled]);
+  }, [currency, advancedEnabled, translateLang]);
 
   const handleLogout = () => {
     try {
@@ -61,7 +66,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="flex flex-col gap-3 mt-4">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 pl-2">Preferencias</h3>
+        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 pl-2">{t('preferences')}</h3>
 
         <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -69,11 +74,36 @@ export default function ProfilePage() {
               <Globe size={20} />
             </div>
             <div className="text-left">
-              <span className="font-bold block text-gray-900">Idioma Principal</span>
-              <span className="text-xs text-gray-500 font-medium">Elige tu idioma</span>
+              <span className="font-bold block text-gray-900">{t('language_primary')}</span>
+              <span className="text-xs text-gray-500 font-medium">{t('language_help')}</span>
             </div>
           </div>
           <LanguageSelector />
+        </div>
+
+        <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
+              <Languages size={20} />
+            </div>
+            <div className="text-left">
+              <span className="font-bold block text-gray-900">Idioma a traducir</span>
+              <span className="text-xs text-gray-500 font-medium">Para el menú y contenido</span>
+            </div>
+          </div>
+          <select
+            className="border border-gray-200 rounded-lg px-2 py-1 text-sm bg-white"
+            value={translateLang}
+            onChange={(e) => setTranslateLang(e.target.value)}
+          >
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="pt">Português</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ko">한국어</option>
+            <option value="ar">العربية</option>
+          </select>
         </div>
 
         <div className="w-full bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -82,8 +112,8 @@ export default function ProfilePage() {
               <CreditCard size={20} />
             </div>
             <div className="text-left">
-              <span className="font-bold block text-gray-900">Moneda a Mostrar</span>
-              <span className="text-xs text-gray-500 font-medium">Conversión automática</span>
+              <span className="font-bold block text-gray-900">{t('currency_display')}</span>
+              <span className="text-xs text-gray-500 font-medium">{t('currency_help')}</span>
             </div>
           </div>
           <select
@@ -105,8 +135,8 @@ export default function ProfilePage() {
               <Settings size={20} />
             </div>
             <div className="text-left">
-              <span className="font-bold block text-gray-900">Ajustes Avanzados</span>
-              <span className="text-xs text-gray-500 font-medium">Funciones opcionales</span>
+              <span className="font-bold block text-gray-900">{t('advanced_settings')}</span>
+              <span className="text-xs text-gray-500 font-medium">{t('advanced_help')}</span>
             </div>
           </div>
           <label className="inline-flex items-center cursor-pointer">
