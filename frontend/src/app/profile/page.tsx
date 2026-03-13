@@ -5,6 +5,7 @@ import { User, Settings, Globe, CreditCard, LogOut, Languages, Store } from 'luc
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { loadSettings, saveSettings } from '@/lib/settings';
 import { useTranslation } from 'react-i18next';
+import { clearSession, getSession } from '@/lib/auth';
 
 export default function ProfilePage() {
   const [currency, setCurrency] = React.useState('USD');
@@ -19,6 +20,11 @@ export default function ProfilePage() {
   const { t } = useTranslation();
 
   React.useEffect(() => {
+    const session = getSession();
+    if (!session) {
+      window.location.href = '/auth';
+      return;
+    }
     const settings = loadSettings();
     setCurrency(settings.currency);
     setAdvancedEnabled(settings.advancedEnabled);
@@ -28,9 +34,9 @@ export default function ProfilePage() {
     if (storedTourist) {
       setTouristId(Number(storedTourist));
     }
-    const storedRole = localStorage.getItem('ola-mexico-role');
-    if (storedRole) {
-      setRole(storedRole);
+    setRole(session.role);
+    if (session.tourist_id) {
+      setTouristId(session.tourist_id);
     }
   }, []);
 
@@ -90,6 +96,9 @@ export default function ProfilePage() {
   const handleLogout = () => {
     try {
       localStorage.removeItem('ola-mexico-role');
+      localStorage.removeItem('ola-merchant-id');
+      localStorage.removeItem('ola-tourist-id');
+      clearSession();
     } catch (e) {}
     window.location.href = '/';
   };

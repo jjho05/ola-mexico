@@ -6,10 +6,11 @@ from typing import List, Optional
 import uuid
 import uvicorn
 import os
+import bcrypt
 from backend.api.routes import vision_router
 from backend.services.currency_service import currency_service
 from backend.database.supabase_client import supabase
-from backend.database.models import Business, Tourist, Merchant
+from backend.database.models import Business, Tourist, Merchant, AuthRegister, AuthLogin
 from backend.services.geo_service import geo_service
 app = FastAPI(title="Ola México API")
 
@@ -55,6 +56,15 @@ MOCK_BUSINESSES = [
     }
 ]
 
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+def verify_password(password: str, password_hash: str) -> bool:
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+    except Exception:
+        return False
+
 @app.get("/api/businesses")
 async def get_businesses():
     try:
@@ -66,6 +76,72 @@ async def get_businesses():
         print(f"Supabase Error: {e}")
     # Fallback if DB empty or error
     return MOCK_BUSINESSES
+
+@app.post("/api/auth/register")
+async def register_account(payload: AuthRegister):
+    if supabase is None:
+        return JSONResponse({"message": "Supabase no configurado"}, status_code=500)
+    role = payload.role.lower().strip()
+    if role not in ["merchant", "tourist"]:
+        return JSONResponse({"message": "Rol inválido"}, status_code=400)
+    try:
+        existing = supabase.table("accounts").select("id").eq("email", payload.email).execute()
+        if existing.data:
+            return JSONResponse({"message": "Email ya registrado"}, status_code=409)
+
+        account_id = str(uuid.uuid4())
+        merchant_id = None
+        tourist_id = None
+
+        if role == "merchant":
+            merchant_id = account_id
+            merchant_data = {
+                "id": merchant_id,
+                "name": payload.name or payload.email.split("@")[0],
+                "phone": payload.phone,
+                "email": payload.email,
+            }
+            supabase.table("merchants").insert(merchant_data).execute()
+        else:
+            tourist_data = {
+                "name": payload.name or "Turista",
+                "email": payload.email,
+                "country": payload.country,
+                "preferred_currency": payload.preferred_currency,
+            }
+            tourist_res = supabase.table("tourists").insert(tourist_data).execute()
+            if tourist_res.data:
+                tourist_id = tourist_res.data[0].get("id")
+
+        account_data = {
+            "id": account_id,
+            "role": role,
+            "email": payload.email,
+            "password_hash": hash_password(payload.password),
+            "merchant_id": merchant_id,
+            "tourist_id": tourist_id,
+        }
+        res = supabase.table("accounts").insert(account_data).execute()
+        return {"message": "Cuenta creada", "account": res.data[0] if res.data else account_data}
+    except Exception as e:
+        print(f"Register Account Error: {e}")
+        return JSONResponse({"message": "No se pudo registrar"}, status_code=500)
+
+@app.post("/api/auth/login")
+async def login_account(payload: AuthLogin):
+    if supabase is None:
+        return JSONResponse({"message": "Supabase no configurado"}, status_code=500)
+    try:
+        res = supabase.table("accounts").select("*").eq("email", payload.email).execute()
+        if not res.data:
+            return JSONResponse({"message": "Credenciales inválidas"}, status_code=401)
+        account = res.data[0]
+        if not verify_password(payload.password, account.get("password_hash", "")):
+            return JSONResponse({"message": "Credenciales inválidas"}, status_code=401)
+        return {"message": "OK", "account": account}
+    except Exception as e:
+        print(f"Login Error: {e}")
+        return JSONResponse({"message": "No se pudo iniciar sesión"}, status_code=500)
 
 @app.post("/api/merchant/register")
 async def register_merchant(business: Business):

@@ -17,7 +17,7 @@ const Navbar = () => {
         <div className="hidden sm:flex">
           <LanguageSelector />
         </div>
-        <Link href="/merchant" className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] border-2 border-[var(--primary)] px-3 py-1.5 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm">
+        <Link href="/auth?role=merchant" className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] border-2 border-[var(--primary)] px-3 py-1.5 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm">
           {t('portal_partner')}
         </Link>
         {/* Search removed until functional */}

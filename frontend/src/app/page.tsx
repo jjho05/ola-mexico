@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Star } from 'lucide-react';
+import { getSession } from '@/lib/auth';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -16,10 +17,15 @@ export default function Home() {
   React.useEffect(() => {
     try {
       const savedRole = localStorage.getItem('ola-mexico-role');
-      if (savedRole === 'merchant') {
+      const session = getSession();
+      if (session?.role === 'merchant') {
         window.location.href = '/merchant';
+        return;
+      }
+      if (session?.role === 'tourist') {
+        setRole('tourist');
       } else if (savedRole === 'tourist') {
-        setRole(savedRole);
+        setRole('tourist');
       }
     } catch {}
 
@@ -111,7 +117,7 @@ export default function Home() {
                   const deviceLang = navigator.language?.split('-')[0] || 'en';
                   localStorage.setItem('ola-mexico-lang', deviceLang);
                 } catch {}
-                setRole('tourist');
+                window.location.href = '/auth?role=tourist';
               }}
               className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 active:scale-95 transition-all"
             >
@@ -123,7 +129,7 @@ export default function Home() {
                   localStorage.setItem('ola-mexico-role', 'merchant');
                   localStorage.setItem('ola-mexico-lang', 'es');
                 } catch {}
-                window.location.href = '/merchant';
+                window.location.href = '/auth?role=merchant';
               }}
               className="w-full bg-white border-2 border-[var(--primary)] text-[var(--primary)] font-bold py-4 rounded-xl shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
             >

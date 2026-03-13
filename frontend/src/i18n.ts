@@ -63,6 +63,15 @@ const resources = {
       ,"tourist_register_help": "Save your current location"
       ,"save_location": "Save location"
       ,"delete_registration": "Delete registration"
+      ,"auth_title": "Sign in or create your account"
+      ,"auth_login": "Log in"
+      ,"auth_register": "Register"
+      ,"auth_email": "Email"
+      ,"auth_password": "Password"
+      ,"auth_name": "Full name"
+      ,"auth_phone": "Phone (optional)"
+      ,"auth_processing": "Processing..."
+      ,"auth_error": "Something went wrong. Try again."
     }
   },
   es: {
@@ -125,6 +134,15 @@ const resources = {
       ,"tourist_register_help": "Guarda tu ubicación actual"
       ,"save_location": "Guardar ubicación"
       ,"delete_registration": "Eliminar registro"
+      ,"auth_title": "Inicia sesión o crea tu cuenta"
+      ,"auth_login": "Iniciar sesión"
+      ,"auth_register": "Registrarse"
+      ,"auth_email": "Correo"
+      ,"auth_password": "Contraseña"
+      ,"auth_name": "Nombre completo"
+      ,"auth_phone": "Teléfono (opcional)"
+      ,"auth_processing": "Procesando..."
+      ,"auth_error": "Algo salió mal. Intenta de nuevo."
     }
   },
   ko: {

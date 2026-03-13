@@ -33,3 +33,16 @@ class Merchant(BaseModel):
     name: str
     phone: Optional[str] = None
     email: Optional[str] = None
+
+class AuthRegister(BaseModel):
+    role: str
+    email: str
+    password: str
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    country: Optional[str] = None
+    preferred_currency: Optional[str] = None
+
+class AuthLogin(BaseModel):
+    email: str
+    password: str

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Store, Save, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSession } from '@/lib/auth';
 
 type Suggestion = {
   display_name: string;
@@ -27,10 +28,17 @@ export default function MerchantDashboard() {
   const [businesses, setBusinesses] = React.useState<any[]>([]);
 
   React.useEffect(() => {
-    const stored = localStorage.getItem('ola-merchant-id');
+    const session = getSession();
+    if (!session || session.role !== 'merchant') {
+      window.location.href = '/auth?role=merchant';
+      return;
+    }
+    const stored = session.merchant_id || localStorage.getItem('ola-merchant-id');
     if (stored) {
       setMerchantId(stored);
+      localStorage.setItem('ola-merchant-id', stored);
       fetchBusinesses(stored);
+      fetchMerchant(stored);
     }
   }, []);
 
@@ -67,13 +75,28 @@ export default function MerchantDashboard() {
     } catch {}
   };
 
+  const fetchMerchant = async (id: string) => {
+    try {
+      const resp = await fetch(`/api/merchants/${id}`);
+      const data = await resp.json();
+      if (data?.name) setMerchantName(data.name);
+      if (data?.phone) setMerchantPhone(data.phone);
+    } catch {}
+  };
+
   const createMerchant = async () => {
     setLoading(true);
     try {
+      const session = getSession();
+      const payload: any = { name: merchantName, phone: merchantPhone };
+      if (session?.id) {
+        payload.id = session.id;
+        payload.email = session.email;
+      }
       const resp = await fetch('/api/merchants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: merchantName, phone: merchantPhone }),
+        body: JSON.stringify(payload),
       });
       const data = await resp.json();
       const id = data?.data?.[0]?.id || data?.merchant?.id;

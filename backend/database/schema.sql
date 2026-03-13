@@ -47,6 +47,17 @@ CREATE TABLE IF NOT EXISTS merchants (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 5. Cuentas de acceso
+CREATE TABLE IF NOT EXISTS accounts (
+    id UUID PRIMARY KEY,
+    role TEXT NOT NULL CHECK (role IN ('merchant','tourist')),
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    merchant_id UUID,
+    tourist_id INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 ALTER TABLE businesses
   ADD COLUMN IF NOT EXISTS merchant_id UUID;
 
