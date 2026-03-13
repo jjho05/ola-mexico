@@ -161,6 +161,11 @@ export default function ScannerPage() {
           OCR error: {result.ocr_error}
         </div>
       )}
+      {result?.ocr_source === "local" && !result?.ocr_error && (
+        <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-blue-700 text-sm">
+          OCR local activado (modo fallback).
+        </div>
+      )}
 
       <input
         ref={cameraInputRef}

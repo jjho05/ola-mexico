@@ -83,12 +83,13 @@ class VisionService:
                     ocr_error = f"{ocr_error} (status {ocr_result.get('status_code')})"
 
         # Fallback a OCR local si HF falla
+        ocr_source = "hf" if self.hf_token else "none"
         if not raw_text and Image is not None and pytesseract is not None:
             try:
                 image = Image.open(io.BytesIO(file_content))
                 raw_text = pytesseract.image_to_string(image, lang="spa+eng")
-                if ocr_error:
-                    ocr_error = f"{ocr_error}; local OCR used"
+                ocr_source = "local"
+                ocr_error = None
             except Exception as e:
                 if ocr_error:
                     ocr_error = f"{ocr_error}; local OCR failed: {e}"
@@ -102,27 +103,46 @@ class VisionService:
         items = []
         if raw_text:
             lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
-            price_lines = []
-            name_lines = []
             price_line_re = re.compile(r"^\$?\s*[0-9]{1,4}(?:[.,][0-9]{1,2})?\s*$")
-            for line in lines:
-                if price_line_re.fullmatch(line):
-                    price_lines.append(line)
-                else:
-                    name_lines.append(line)
 
-            # If there are both, pair by order
-            if name_lines and price_lines:
-                pairs = min(len(name_lines), len(price_lines))
-                for i in range(pairs):
-                    price_str = price_lines[i].replace("$", "").replace(",", ".").strip()
-                    try:
-                        price = float(price_str)
-                    except Exception:
+            desc_stopwords = (
+                "rellenas", "acompañadas", "orden", "salsa", "especial",
+                "tradicional", "delicioso", "deliciosa", "crujientes",
+                "bañados", "bebidas", "refresco", "botella", "lata",
+            )
+
+            def is_candidate_name(text: str) -> bool:
+                if len(text) > 40:
+                    return False
+                lowered = text.lower()
+                if any(word in lowered for word in desc_stopwords):
+                    return False
+                if re.search(r"[.,:;]", text):
+                    return False
+                return True
+
+            used_name_idx = set()
+            for idx, line in enumerate(lines):
+                if not price_line_re.fullmatch(line):
+                    continue
+                price_str = line.replace("$", "").replace(",", ".").strip()
+                try:
+                    price = float(price_str)
+                except Exception:
+                    continue
+                name = None
+                for j in range(idx - 1, -1, -1):
+                    if j in used_name_idx:
                         continue
-                    name = name_lines[i]
+                    candidate = lines[j]
+                    if is_candidate_name(candidate):
+                        name = candidate
+                        used_name_idx.add(j)
+                        break
+                if name:
                     items.append({"name": name, "price_mxn": price})
-            else:
+
+            if not items:
                 # Fallback to window parse
                 cleaned = re.sub(r"\\s+", " ", raw_text).strip()
                 price_matches = list(re.finditer(r"(?i)(?:mxn|\\$)?\\s*([0-9]{1,4}(?:[\\.,][0-9]{1,2})?)", cleaned))
@@ -164,9 +184,10 @@ class VisionService:
             "items": processed_items,
             "raw_text": raw_text,
             "ocr_error": ocr_error,
+            "ocr_source": ocr_source,
             "target_lang": target_lang,
             "target_currency": target_currency,
-            "status": "success" if self.hf_token and not ocr_error else "no_data",
+            "status": "success" if processed_items else "no_data",
             "info": "Procesado con Hugging Face Inference API" if self.hf_token else "Token faltante o sin OCR"
         }
 
