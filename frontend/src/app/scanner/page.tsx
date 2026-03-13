@@ -85,9 +85,27 @@ export default function ScannerPage() {
           <div className="absolute inset-0 bg-white/95 p-6 overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-bold text-xl">Menú Traducido</h2>
-              <button onClick={() => setResult(null)} className="text-gray-400 transition-colors hover:text-gray-900">
-                <RefreshCw size={20} />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setResult(null)}
+                  className="text-gray-400 transition-colors hover:text-gray-900"
+                  title="Limpiar resultado"
+                >
+                  <RefreshCw size={20} />
+                </button>
+                <button
+                  onClick={handlePickPhoto}
+                  className="text-xs font-semibold text-gray-700 underline underline-offset-4"
+                >
+                  Tomar otra foto
+                </button>
+                <button
+                  onClick={handlePickUpload}
+                  className="text-xs font-semibold text-gray-700 underline underline-offset-4"
+                >
+                  Subir imagen
+                </button>
+              </div>
             </div>
             
             <div className="flex gap-2 mb-6">
