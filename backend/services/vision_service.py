@@ -16,11 +16,12 @@ class VisionService:
     def __init__(self):
         # Hugging Face Inference API Config (Serverless)
         self.hf_token = os.getenv("HF_TOKEN", "")
-        # Modelos recomendados para Zero Budget (Inference API free)
-        self.ocr_api_urls = [
-            "https://api-inference.huggingface.co/models/microsoft/trocr-small-printed",
-            "https://api-inference.huggingface.co/models/microsoft/trocr-base-printed",
+        # HF Inference API (router) - models list
+        self.ocr_model_ids = [
+            "microsoft/trocr-small-printed",
+            "microsoft/trocr-base-printed",
         ]
+        self.hf_router_base = "https://router.huggingface.co/hf-inference/models"
         self.translate_api_url = "https://api-inference.huggingface.co/models/facebook/nllb-200-distilled-600M"
 
     async def call_hf_api(self, url: str, payload: Any, is_image: bool = False) -> Any:
@@ -57,7 +58,8 @@ class VisionService:
         # 1. OCR (Microsoft TrOCR)
         ocr_result = None
         ocr_error = None
-        for url in self.ocr_api_urls:
+        for model_id in self.ocr_model_ids:
+            url = f"{self.hf_router_base}/{model_id}"
             ocr_result = await self.call_hf_api(url, file_content, is_image=True)
             if isinstance(ocr_result, list) and ocr_result:
                 break
