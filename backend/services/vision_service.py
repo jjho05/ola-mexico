@@ -3,6 +3,14 @@ from typing import Dict, Any
 from backend.services.currency_service import currency_service
 import os
 import re
+import io
+
+try:
+    from PIL import Image
+    import pytesseract
+except Exception:  # Optional local OCR deps
+    Image = None
+    pytesseract = None
 
 class VisionService:
     def __init__(self):
@@ -71,6 +79,19 @@ class VisionService:
                 ocr_error = ocr_result.get("error")
                 if ocr_result.get("status_code"):
                     ocr_error = f"{ocr_error} (status {ocr_result.get('status_code')})"
+
+        # Fallback a OCR local si HF falla
+        if not raw_text and Image is not None and pytesseract is not None:
+            try:
+                image = Image.open(io.BytesIO(file_content))
+                raw_text = pytesseract.image_to_string(image, lang="spa+eng")
+                if ocr_error:
+                    ocr_error = f"{ocr_error}; local OCR used"
+            except Exception as e:
+                if ocr_error:
+                    ocr_error = f"{ocr_error}; local OCR failed: {e}"
+                else:
+                    ocr_error = f"Local OCR failed: {e}"
         
         # 3. Traducción Cultural (Simulada para mantener el flujo pero preparada para NLLB-200)
         # En una versión full, enviaríamos el 'raw_text' a self.translate_api_url
