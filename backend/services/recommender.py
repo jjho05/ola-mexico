@@ -1,9 +1,18 @@
-import pandas as pd
-from sklearn.neighbors import NearestNeighbors
+try:
+    import pandas as pd
+    from sklearn.neighbors import NearestNeighbors
+except Exception as import_error:  # Optional deps for local experimentation
+    pd = None
+    NearestNeighbors = None
+    _import_error = import_error
 from typing import List, Dict
 
 class RecommenderSystem:
     def __init__(self):
+        if pd is None or NearestNeighbors is None:
+            raise RuntimeError(
+                "Recommender deps missing. Install pandas and scikit-learn to use this module."
+            )
         # Mock data for initial prototype
         self.businesses = pd.DataFrame([
             {"id": 1, "name": "Tacos El Guero", "category": "food", "tags": "street food, classic, cheap", "lat": 19.4326, "lng": -99.1332},

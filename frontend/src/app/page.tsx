@@ -4,25 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Star } from 'lucide-react';
 
-const businesses = [
-  {
-    "id": 1,
-    "name": "Tacos El Guero",
-    "category": "Comida",
-    "image_url": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47",
-    "rating": 4.8,
-    "address": "Centro Histórico"
-  },
-  {
-    "id": 2,
-    "name": "Artesanías El Jaguar",
-    "category": "Compras",
-    "image_url": "https://images.unsplash.com/photo-1590076215667-873d3215904a",
-    "rating": 4.5,
-    "address": "Colonia Juárez"
-  }
-];
-
 export default function Home() {
   const { t } = useTranslation();
   const [businesses, setBusinesses] = React.useState<any[]>([]);

@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 class Business(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: str
     category: str
     description: str

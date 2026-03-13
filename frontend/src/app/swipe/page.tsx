@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import SwipeCard from '@/components/SwipeCard';
-import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'framer-motion';
 
 const MOCK_DATA = [
@@ -31,7 +30,6 @@ const MOCK_DATA = [
 
 export default function SwipePage() {
   const [index, setIndex] = useState(0);
-  const { t } = useTranslation();
 
   const handleSwipe = (direction: 'left' | 'right') => {
     console.log(`Swiped ${direction} on ${MOCK_DATA[index].name}`);

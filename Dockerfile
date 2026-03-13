@@ -4,6 +4,7 @@
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
+ENV PUPPETEER_SKIP_DOWNLOAD=1
 RUN npm install
 COPY frontend/ ./
 RUN npm run build
@@ -11,13 +12,6 @@ RUN npm run build
 # Etapa 2: Runtime del Backend y Servidor de Archivos
 FROM python:3.11-slim
 WORKDIR /app
-
-# Instalar dependencias del sistema para OpenCV y OCR
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglx0 \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
 
 # Instalar dependencias de Python
 COPY backend/requirements.txt .

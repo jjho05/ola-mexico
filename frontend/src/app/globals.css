@@ -8,6 +8,7 @@
   --accent: #ce1126; /* Rojo Mexicano */
   --muted: #6b7280;
   --glass: rgba(255, 255, 255, 0.8);
+  --nav-bg: rgba(255, 255, 255, 0.9);
 }
 
 @theme inline {

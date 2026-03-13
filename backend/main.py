@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from typing import List, Optional
 import uvicorn
 import os
@@ -21,6 +21,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Static export path for Next.js build output (Dockerfile copies it to /app/static)
+static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 
 # Mock database - will move to PostgreSQL later
 MOCK_BUSINESSES = [
@@ -53,9 +56,10 @@ MOCK_BUSINESSES = [
 @app.get("/api/businesses")
 async def get_businesses():
     try:
-        response = supabase.table("businesses").select("*").execute()
-        if response.data:
-            return response.data
+        if supabase is not None:
+            response = supabase.table("businesses").select("*").execute()
+            if response.data:
+                return response.data
     except Exception as e:
         print(f"Supabase Error: {e}")
     # Fallback if DB empty or error
@@ -65,15 +69,19 @@ async def get_businesses():
 async def register_merchant(business: Business):
     try:
         data = business.dict()
-        # En Supabase no necesitamos ID manual si es autoincremental, 
+        # En Supabase no necesitamos ID manual si es autoincremental,
         # pero para compatibilidad con el modelo lo enviamos o dejamos que DB lo asigne
-        res = supabase.table("businesses").insert(data).execute()
-        return {"message": "Negocio registrado en la nube", "data": res.data}
+        if supabase is not None:
+            res = supabase.table("businesses").insert(data).execute()
+            return {"message": "Negocio registrado en la nube", "data": res.data}
     except Exception as e:
         print(f"Register Error: {e}")
         # Local mock fallback
         MOCK_BUSINESSES.append(business.dict())
         return {"message": "Error en DB, guardado en memoria local", "business": business}
+    # Fallback if no Supabase configured
+    MOCK_BUSINESSES.append(business.dict())
+    return {"message": "Supabase no configurado, guardado en memoria local", "business": business}
 
 @app.get("/api/recommendations")
 async def get_recommendations(interests: Optional[str] = None):
