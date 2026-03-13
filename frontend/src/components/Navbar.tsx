@@ -1,4 +1,4 @@
-'use strict';
+'use client';
 
 import Link from 'next/link';
 import { Search, Bell } from 'lucide-react';
