@@ -135,6 +135,11 @@ export default function ScannerPage() {
           {error}
         </div>
       )}
+      {result?.ocr_error && (
+        <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-sm">
+          OCR error: {result.ocr_error}
+        </div>
+      )}
 
       <input
         ref={cameraInputRef}

@@ -2,6 +2,7 @@ import httpx
 from typing import Dict, Any
 from backend.services.currency_service import currency_service
 import os
+import re
 
 class VisionService:
     def __init__(self):
@@ -22,10 +23,16 @@ class VisionService:
                     response = await client.post(url, headers=headers, content=payload)
                 else:
                     response = await client.post(url, headers=headers, json=payload)
+                if response.status_code != 200:
+                    return {
+                        "error": "HF API request failed",
+                        "status_code": response.status_code,
+                        "body": response.text[:500]
+                    }
                 return response.json()
             except Exception as e:
                 print(f"HF API Error: {e}")
-                return None
+                return {"error": str(e)}
 
     async def process_menu_image_cloud(self, file, target_lang: str, target_currency: str) -> Dict[str, Any]:
         """
@@ -40,7 +47,17 @@ class VisionService:
         ocr_result = await self.call_hf_api(self.ocr_api_url, file_content, is_image=True)
         
         # 2. Análisis y Traducción (Simplificado para el Mundial)
-        raw_text = ocr_result[0].get("generated_text", "") if ocr_result and isinstance(ocr_result, list) else ""
+        raw_text = ""
+        ocr_error = None
+        if isinstance(ocr_result, list) and ocr_result:
+            raw_text = ocr_result[0].get("generated_text", "")
+        elif isinstance(ocr_result, dict):
+            if "generated_text" in ocr_result:
+                raw_text = ocr_result.get("generated_text", "")
+            elif "error" in ocr_result:
+                ocr_error = ocr_result.get("error")
+                if ocr_result.get("status_code"):
+                    ocr_error = f"{ocr_error} (status {ocr_result.get('status_code')})"
         
         # 3. Traducción Cultural (Simulada para mantener el flujo pero preparada para NLLB-200)
         # En una versión full, enviaríamos el 'raw_text' a self.translate_api_url
@@ -50,17 +67,17 @@ class VisionService:
         if raw_text:
             lines = [line.strip() for line in raw_text.replace("|", "\n").splitlines() if line.strip()]
             for line in lines:
-                parts = line.split()
-                price = None
-                name_parts = []
-                for part in parts:
-                    cleaned = part.replace("$", "").replace("MXN", "").replace("mxn", "")
-                    try:
-                        price = float(cleaned)
-                    except Exception:
-                        name_parts.append(part)
-                if price is not None and name_parts:
-                    items.append({"name": " ".join(name_parts), "price_mxn": price})
+                matches = re.findall(r"(?i)(?:mxn|\\$)?\\s*([0-9]{1,4}(?:[\\.,][0-9]{1,2})?)", line)
+                if not matches:
+                    continue
+                price_str = matches[-1].replace(",", ".")
+                try:
+                    price = float(price_str)
+                except Exception:
+                    continue
+                name = re.sub(r"(?i)\\$?\\s*[0-9]{1,4}(?:[\\.,][0-9]{1,2})?\\s*(mxn)?", "", line).strip()
+                if name:
+                    items.append({"name": name, "price_mxn": price})
         
         processed_items = []
         for item in items:
@@ -76,9 +93,10 @@ class VisionService:
         return {
             "items": processed_items,
             "raw_text": raw_text,
+            "ocr_error": ocr_error,
             "target_lang": target_lang,
             "target_currency": target_currency,
-            "status": "success" if self.hf_token else "no_data",
+            "status": "success" if self.hf_token and not ocr_error else "no_data",
             "info": "Procesado con Hugging Face Inference API" if self.hf_token else "Token faltante o sin OCR"
         }
 
