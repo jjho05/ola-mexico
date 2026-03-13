@@ -21,7 +21,7 @@ const Navbar = () => {
         <Link href="/merchant" className="text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] border-2 border-[var(--primary)] px-3 py-1.5 rounded-full hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm">
           {t('portal_partner')}
         </Link>
-        <button className="p-2 text-[var(--muted)] hover:bg-gray-100 rounded-full transition-colors" title="Buscar (próximamente)" disabled>
+        <button className="p-2 text-[var(--muted)] hover:bg-gray-100 rounded-full transition-colors" title={t('search_soon')} disabled>
           <Search size={20} />
         </button>
       </div>

@@ -43,14 +43,14 @@ export default function ProfilePage() {
       <header className="mb-2 w-full flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-black italic tracking-tighter uppercase">
-            Mi <span className="text-[var(--primary)]">Perfil</span>
+            {t('profile_title').split(' ')[0]} <span className="text-[var(--primary)]">{t('profile_title').split(' ').slice(1).join(' ')}</span>
           </h1>
           <p className="text-[var(--muted)] font-medium">Gestiona tu experiencia.</p>
         </div>
         <button 
           onClick={handleLogout}
           className="text-red-500 bg-red-50 p-3 rounded-full hover:bg-red-100 transition-colors"
-          title="Cerrar sesión"
+          title={t('logout')}
         >
           <LogOut size={20} />
         </button>
@@ -90,8 +90,8 @@ export default function ProfilePage() {
               <Languages size={20} />
             </div>
             <div className="text-left">
-              <span className="font-bold block text-gray-900">Idioma a traducir</span>
-              <span className="text-xs text-gray-500 font-medium">Para el menú y contenido</span>
+              <span className="font-bold block text-gray-900">{t('translate_language')}</span>
+              <span className="text-xs text-gray-500 font-medium">{t('translate_language_help')}</span>
             </div>
           </div>
           <select
@@ -138,8 +138,8 @@ export default function ProfilePage() {
               <Globe size={20} />
             </div>
             <div className="text-left">
-              <span className="font-bold block text-gray-900">País de visita</span>
-              <span className="text-xs text-gray-500 font-medium">Define moneda sugerida</span>
+              <span className="font-bold block text-gray-900">{t('visit_country')}</span>
+              <span className="text-xs text-gray-500 font-medium">{t('visit_country_help')}</span>
             </div>
           </div>
           <select

@@ -114,13 +114,13 @@ export default function ScannerPage() {
                   onClick={handlePickPhoto}
                   className="text-xs font-semibold text-gray-700 underline underline-offset-4"
                 >
-                  Tomar otra foto (cámara)
+                  {t('rescan_camera')}
                 </button>
                 <button
                   onClick={handlePickUpload}
                   className="text-xs font-semibold text-gray-700 underline underline-offset-4"
                 >
-                  Subir imagen
+                  {t('upload_image_short')}
                 </button>
               </div>
             </div>
@@ -135,12 +135,12 @@ export default function ScannerPage() {
               <div className="flex-1 bg-blue-50 p-2 rounded-xl flex items-center gap-2">
                 <Coins className="text-blue-600" size={18} />
                 <span className="text-xs font-bold uppercase text-blue-700">
-                  {result?.target_currency ? `MXN ➜ ${String(result.target_currency).toUpperCase()}` : "Conversión"}
+                  {result?.target_currency ? `MXN ➜ ${String(result.target_currency).toUpperCase()}` : t('conversion')}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mb-6">
-              <label className="text-xs font-semibold text-gray-600">Mostrar original</label>
+              <label className="text-xs font-semibold text-gray-600">{t('show_original')}</label>
               <button
                 onClick={() => setShowOriginal((v) => !v)}
                 className={`w-10 h-6 rounded-full transition-colors ${showOriginal ? 'bg-[var(--primary)]' : 'bg-gray-200'}`}
@@ -155,7 +155,7 @@ export default function ScannerPage() {
                 <div className="text-sm text-gray-500">
                   {t('no_items')}
                   {result?.raw_text ? (
-                    <div className="mt-2 text-xs text-gray-400">Texto detectado: {result.raw_text}</div>
+                    <div className="mt-2 text-xs text-gray-400">{t('detected_text')}: {result.raw_text}</div>
                   ) : null}
                 </div>
               )}

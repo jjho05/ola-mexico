@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { Store, Camera, Save, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function MerchantDashboard() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [businessName, setBusinessName] = useState('');
   const [category, setCategory] = useState('Comida y Bebida');
@@ -46,15 +48,15 @@ export default function MerchantDashboard() {
         <div className="w-20 h-20 bg-[var(--primary)] text-white rounded-full flex items-center justify-center shadow-2xl">
           <Save size={40} />
         </div>
-        <h1 className="text-3xl font-black italic tracking-tighter uppercase">¡Bienvenido Socio!</h1>
+        <h1 className="text-3xl font-black italic tracking-tighter uppercase">{t('merchant_welcome')}</h1>
         <p className="text-[var(--muted)] font-medium px-6">
-          Tu negocio ya es parte de la Ola México. Prepárate para recibir turistas de todo el mundo.
+          {t('merchant_welcome_help')}
         </p>
         <button 
           onClick={() => window.location.href = '/'}
           className="bg-[var(--primary)] text-white font-bold px-8 py-3 rounded-xl"
         >
-          Ir al Inicio
+          {t('go_home')}
         </button>
       </div>
     );
@@ -64,9 +66,9 @@ export default function MerchantDashboard() {
     <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto pb-24">
       <header className="mb-4">
         <h1 className="text-3xl font-black italic tracking-tighter uppercase">
-          Portal <span className="text-[var(--primary)]">Comerciante</span>
+          {t('merchant_portal').split(' ')[0]} <span className="text-[var(--primary)]">{t('merchant_portal').split(' ').slice(1).join(' ')}</span>
         </h1>
-        <p className="text-[var(--muted)] font-medium">Prepara tu negocio para el Mundial 2026.</p>
+        <p className="text-[var(--muted)] font-medium">{t('merchant_subtitle')}</p>
       </header>
 
       {step === 1 ? (
@@ -74,12 +76,12 @@ export default function MerchantDashboard() {
           <div className="w-16 h-16 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center text-[var(--primary)] mb-2">
             <Store size={32} />
           </div>
-          <h2 className="text-xl font-bold">Registra tu Negocio</h2>
-          <p className="text-sm text-[var(--muted)]">Cuéntanos un poco sobre tu local para que los turistas puedan encontrarte.</p>
+          <h2 className="text-xl font-bold">{t('merchant_register_title')}</h2>
+          <p className="text-sm text-[var(--muted)]">{t('merchant_register_help')}</p>
           
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Nombre del Negocio</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('merchant_business_name')}</label>
               <input 
                 type="text" 
                 placeholder="Ej. Tacos El Guero"
@@ -89,7 +91,7 @@ export default function MerchantDashboard() {
               />
             </div>
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Categoría</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('merchant_category')}</label>
               <select 
                 className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={category}
@@ -106,7 +108,7 @@ export default function MerchantDashboard() {
               disabled={loading || !businessName}
               className={`w-full ${loading ? 'opacity-50' : 'bg-[var(--primary)]'} text-white font-bold py-4 rounded-xl shadow-lg shadow-[var(--primary)]/20 active:scale-95 transition-transform`}
             >
-              {loading ? 'Procesando...' : 'Registrar Negocio'}
+              {loading ? t('merchant_processing') : t('merchant_register_button')}
             </button>
           </div>
         </section>
@@ -116,24 +118,24 @@ export default function MerchantDashboard() {
             <div className="w-10 h-10 bg-[var(--secondary)] rounded-xl flex items-center justify-center text-white">
               <Camera size={20} />
             </div>
-            <h2 className="text-xl font-bold">Tu Menú Digital</h2>
+            <h2 className="text-xl font-bold">{t('menu_digital')}</h2>
           </div>
           
-          <p className="text-sm text-[var(--muted)]">Sube una foto de tu menú o lista de precios. Nuestra IA lo traducirá automáticamente para visitantes de todo el mundo.</p>
+          <p className="text-sm text-[var(--muted)]">{t('menu_upload_help')}</p>
           
           <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
             <Plus size={32} className="text-[var(--primary)]" />
-            <span className="text-sm font-bold">Subir foto del menú</span>
+            <span className="text-sm font-bold">{t('menu_upload_button')}</span>
           </div>
 
           <div className="pt-4">
             <div className="p-4 bg-gray-50 rounded-xl text-gray-500 text-sm">
-              Aún no hay platillos cargados.
+              {t('menu_empty')}
             </div>
           </div>
 
           <button className="w-full border-2 border-[var(--primary)] text-[var(--primary)] font-bold py-4 rounded-xl active:scale-95 transition-transform">
-            Guardar Cambios
+            {t('save_changes')}
           </button>
         </section>
       )}
