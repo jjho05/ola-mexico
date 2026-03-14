@@ -254,6 +254,8 @@ async def get_merchant_businesses(merchant_id: str):
 async def create_merchant_business(merchant_id: str, business: Business):
     try:
         data = business.dict()
+        if data.get("id") is None:
+            data.pop("id", None)
         data["merchant_id"] = merchant_id
         if (not data.get("lat") or not data.get("lng")) and data.get("address"):
             coords = await geo_service.geocode(data.get("address"))
