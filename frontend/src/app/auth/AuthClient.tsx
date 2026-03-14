@@ -42,10 +42,16 @@ export default function AuthClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await resp.json();
+      const raw = await resp.text();
+      let data: any = null;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        data = null;
+      }
       if (!resp.ok) {
-        const detail = data?.detail ? ` (${data.detail})` : '';
-        setError(`${data?.message || t('auth_error')}${detail}`);
+        const detail = data?.detail ? ` (${data.detail})` : raw ? ` (${raw})` : '';
+        setError(`${data?.message || t('auth_error')} [${resp.status}]${detail}`);
         return;
       }
       const account = data?.account;
@@ -70,8 +76,8 @@ export default function AuthClient() {
       } else {
         window.location.href = '/';
       }
-    } catch {
-      setError(t('auth_error'));
+    } catch (err: any) {
+      setError(`${t('auth_error')}${err?.message ? ` (${err.message})` : ''}`);
     } finally {
       setLoading(false);
     }
@@ -86,8 +92,10 @@ export default function AuthClient() {
         <p className="text-[var(--muted)] font-medium mt-2">{t('auth_title')}</p>
       </header>
 
-      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl space-y-4">
-        <div className="flex gap-2">
+      <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl space-y-5">
+        <div className="flex flex-col gap-2">
+          <p className="text-xs uppercase tracking-widest text-gray-400 font-bold">1. Elige tu perfil</p>
+          <div className="flex gap-2">
           <button
             className={`flex-1 py-2 rounded-xl text-sm font-bold ${role === 'tourist' ? 'bg-[var(--primary)] text-white' : 'bg-gray-100 text-gray-600'}`}
             onClick={() => setRole('tourist')}
@@ -100,9 +108,12 @@ export default function AuthClient() {
           >
             {t('role_merchant')}
           </button>
+          </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
+          <p className="text-xs uppercase tracking-widest text-gray-400 font-bold">2. ¿Ya tienes cuenta?</p>
+          <div className="flex gap-2">
           <button
             className={`flex-1 py-2 rounded-xl text-sm font-bold ${mode === 'login' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'}`}
             onClick={() => setMode('login')}
@@ -115,6 +126,7 @@ export default function AuthClient() {
           >
             {t('auth_register')}
           </button>
+          </div>
         </div>
 
         {mode === 'register' && (
