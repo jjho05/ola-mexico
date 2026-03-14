@@ -14,6 +14,10 @@ export default function ProfilePage() {
   const [country, setCountry] = React.useState('MX');
   const [touristName, setTouristName] = React.useState('');
   const [touristEmail, setTouristEmail] = React.useState('');
+  const [touristAddress, setTouristAddress] = React.useState('');
+  const [touristLat, setTouristLat] = React.useState<number | null>(null);
+  const [touristLng, setTouristLng] = React.useState<number | null>(null);
+  const [touristSuggestions, setTouristSuggestions] = React.useState<any[]>([]);
   const [locationStatus, setLocationStatus] = React.useState<string | null>(null);
   const [touristId, setTouristId] = React.useState<number | null>(null);
   const [role, setRole] = React.useState<string>('tourist');
@@ -62,6 +66,25 @@ export default function ProfilePage() {
         .catch(() => {});
     }
   }, []);
+
+  React.useEffect(() => {
+    if (!touristAddress) {
+      setTouristSuggestions([]);
+      return;
+    }
+    const handle = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: touristAddress, format: 'json', limit: '5' });
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+          headers: { 'User-Agent': 'ola-mexico/1.0' },
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        setTouristSuggestions(data || []);
+      } catch {}
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [touristAddress]);
 
   React.useEffect(() => {
     saveSettings({
@@ -212,41 +235,93 @@ export default function ProfilePage() {
               <span className="text-xs text-gray-500 font-medium">{t('tourist_register_help')}</span>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input
-              type="text"
-              placeholder="Nombre"
-              className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
-              value={touristName}
-              onChange={(e) => setTouristName(e.target.value)}
-            />
-            <input
-              type="email"
-              placeholder="Email (opcional)"
-              className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
-              value={touristEmail}
-              onChange={(e) => setTouristEmail(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-3 items-center">
-            <button
-              className="bg-[var(--primary)] text-white font-bold px-4 py-2 rounded-xl"
-              onClick={() => {
-                setLocationStatus("Guardando...");
-                if (!navigator.geolocation) {
-                  setLocationStatus("Geolocalización no disponible");
-                  return;
-                }
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                    saveTourist(pos.coords.latitude, pos.coords.longitude);
-                  },
-                  () => setLocationStatus("No se pudo obtener ubicación")
-                );
-              }}
-            >
-              {t('save_location')}
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder="Nombre"
+                className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                value={touristName}
+                onChange={(e) => setTouristName(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="Email (opcional)"
+                className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                value={touristEmail}
+                onChange={(e) => setTouristEmail(e.target.value)}
+              />
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={t('search_location')}
+                className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                value={touristAddress}
+                onChange={(e) => setTouristAddress(e.target.value)}
+              />
+              {touristSuggestions.length > 0 && (
+                <div className="absolute z-20 bg-white border border-gray-200 rounded-xl mt-2 w-full max-h-56 overflow-auto shadow-lg">
+                  {touristSuggestions.map((s: any, idx: number) => (
+                    <button
+                      key={`${s.display_name}-${idx}`}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                      onClick={() => {
+                        setTouristAddress(s.display_name);
+                        setTouristLat(Number(s.lat));
+                        setTouristLng(Number(s.lon));
+                        setTouristSuggestions([]);
+                      }}
+                    >
+                      {s.display_name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {touristLat && touristLng && (
+              <div className="rounded-2xl border border-gray-200 overflow-hidden">
+                <img
+                  src={`https://staticmap.openstreetmap.de/staticmap.php?center=${touristLat},${touristLng}&zoom=16&size=600x240&markers=${touristLat},${touristLng},red-pushpin`}
+                  alt="Mapa"
+                  className="w-full h-40 object-cover"
+                  loading="lazy"
+                />
+                <div className="p-3 flex items-center justify-between text-xs text-gray-500">
+                  <span>{t('selected_location')}</span>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${touristLat},${touristLng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[var(--primary)] font-bold"
+                  >
+                    {t('open_in_maps')}
+                  </a>
+                </div>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-3 items-center">
+              <button
+                className="bg-[var(--primary)] text-white font-bold px-4 py-2 rounded-xl"
+                onClick={() => {
+                  setLocationStatus("Guardando...");
+                  if (touristLat && touristLng) {
+                    saveTourist(touristLat, touristLng);
+                    return;
+                  }
+                  if (!navigator.geolocation) {
+                    setLocationStatus("Geolocalización no disponible");
+                    return;
+                  }
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      saveTourist(pos.coords.latitude, pos.coords.longitude);
+                    },
+                    () => setLocationStatus("No se pudo obtener ubicación")
+                  );
+                }}
+              >
+                {t('save_location')}
+              </button>
             {touristId ? (
               <button
                 className="border border-red-200 text-red-600 font-bold px-4 py-2 rounded-xl"

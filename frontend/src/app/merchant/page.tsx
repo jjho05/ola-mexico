@@ -238,7 +238,7 @@ export default function MerchantDashboard() {
                 </select>
               </div>
               <div className="relative">
-                <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Dirección</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('search_location')}</label>
                 <input
                   type="text"
                   className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
@@ -264,6 +264,27 @@ export default function MerchantDashboard() {
                   </div>
                 )}
               </div>
+              {lat && lng && (
+                <div className="rounded-2xl border border-gray-200 overflow-hidden">
+                  <img
+                    src={`https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=16&size=600x240&markers=${lat},${lng},red-pushpin`}
+                    alt="Mapa"
+                    className="w-full h-48 object-cover"
+                    loading="lazy"
+                  />
+                  <div className="p-3 flex items-center justify-between text-xs text-gray-500">
+                    <span>{t('selected_location')}</span>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[var(--primary)] font-bold"
+                    >
+                      {t('open_in_maps')}
+                    </a>
+                  </div>
+                </div>
+              )}
               <button
                 onClick={saveBusiness}
                 disabled={loading || !businessName || !address}
