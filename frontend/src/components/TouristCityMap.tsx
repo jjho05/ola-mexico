@@ -77,11 +77,12 @@ export default function TouristCityMap({ center, userLocation, pois, businesses 
     if (!mapInstance.current || !markersLayer.current) return;
     mapInstance.current.setView(center, 13);
     markersLayer.current.clearLayers();
+    const layer = markersLayer.current;
 
     if (userLocation) {
       L.marker(userLocation, { icon: iconUser })
         .bindPopup('Tu ubicación')
-        .addTo(markersLayer.current);
+        .addTo(layer);
     }
 
     businesses.forEach((biz) => {
@@ -89,7 +90,7 @@ export default function TouristCityMap({ center, userLocation, pois, businesses 
         .bindPopup(
           `<strong>${biz.name}</strong>${biz.address ? `<br/><span>${biz.address}</span>` : ''}`
         )
-        .addTo(markersLayer.current);
+        .addTo(layer);
     });
 
     pois.forEach((poi) => {
@@ -97,7 +98,7 @@ export default function TouristCityMap({ center, userLocation, pois, businesses 
         .bindPopup(
           `<strong>${poi.title}</strong>${poi.url ? `<br/><a href="${poi.url}" target="_blank" rel="noreferrer">Wikipedia</a>` : ''}`
         )
-        .addTo(markersLayer.current);
+        .addTo(layer);
     });
   }, [center, userLocation, pois, businesses]);
 
