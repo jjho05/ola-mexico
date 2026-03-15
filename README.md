@@ -62,6 +62,29 @@ Insights de turismo y demanda para asociaciones/municipios: zonas, categorías t
 
 ---
 
+## Stack y Tecnologías (detalle)
+
+### Backend (Python / FastAPI)
+- **FastAPI**: API principal (REST).
+- **Uvicorn**: servidor ASGI.
+- **Pydantic**: validación de datos.
+- **httpx**: llamadas a APIs externas (Wikipedia, Gemini).
+- **supabase-py**: acceso a Supabase.
+- **bcrypt**: hashing de contraseñas.
+- **python-multipart**: manejo de imágenes para OCR.
+- **Stripe SDK**: pagos y Connect Express.
+
+### Frontend (Next.js / React)
+- **Next.js 16** (App Router): UI web y despliegue estático.
+- **React 19**: interfaz principal.
+- **Tailwind CSS v4**: estilos.
+- **Framer Motion**: animaciones (swipes).
+- **i18next + react-i18next**: internacionalización.
+- **Leaflet**: mapa interactivo.
+- **Lucide React**: iconografía.
+
+---
+
 ## Servicios y APIs usadas
 
 - **Supabase** (DB + RLS)
@@ -69,6 +92,38 @@ Insights de turismo y demanda para asociaciones/municipios: zonas, categorías t
 - **Wikipedia GeoSearch** (POIs turísticos)
 - **OpenStreetMap + Leaflet** (mapa interactivo)
 - **Stripe Connect Express** (pagos con QR)
+
+---
+
+## APIs internas (resumen)
+
+### Negocios y comerciantes
+- `GET /api/businesses`
+- `GET /api/businesses/nearby`
+- `GET /api/businesses/search`
+- `POST /api/merchants`
+- `GET /api/merchants/{merchant_id}`
+- `PUT /api/merchants/{merchant_id}`
+- `GET /api/merchants/{merchant_id}/businesses`
+- `POST /api/merchants/{merchant_id}/businesses`
+- `PUT /api/merchants/{merchant_id}/businesses/{business_id}`
+
+### Turistas
+- `POST /api/tourists/register`
+- `GET /api/tourists/{tourist_id}`
+- `PUT /api/tourists/{tourist_id}`
+- `DELETE /api/tourists/{tourist_id}`
+
+### OCR y Menú Universal AI
+- `POST /api/vision/scan-menu`
+
+### Mapa y POIs
+- `GET /api/poi/nearby`
+
+### Pagos (Stripe)
+- `POST /api/stripe/connect/create`
+- `GET /api/stripe/connect/status`
+- `POST /api/payments/checkout`
 
 ---
 
