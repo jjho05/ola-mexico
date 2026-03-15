@@ -12,6 +12,7 @@ from backend.services.currency_service import currency_service
 from backend.database.supabase_client import supabase
 from backend.database.models import Business, Tourist, Merchant, AuthRegister, AuthLogin
 from backend.services.geo_service import geo_service
+from backend.services.poi_service import poi_service
 app = FastAPI(title="Ola México API")
 
 app.include_router(vision_router)
@@ -381,6 +382,14 @@ async def convert_currency(amount: float, to_currency: str):
 async def get_all_rates():
     rates = await currency_service.get_rates()
     return rates
+
+@app.get("/api/poi/nearby")
+async def get_poi_nearby(lat: float, lng: float, radius_km: float = 3.0, limit: int = 15):
+    try:
+        results = await poi_service.nearby(lat, lng, radius_km=radius_km, limit=limit)
+        return results
+    except Exception as e:
+        return JSONResponse({"message": "No se pudieron cargar lugares", "detail": str(e)}, status_code=500)
 
 if os.path.exists(static_path):
     # Disable html=True so /scanner hits the 404 handler, where we can intercept RSC

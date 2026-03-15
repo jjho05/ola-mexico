@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Star, Map } from 'lucide-react';
 import { getSession } from '@/lib/auth';
+import TouristCityMap from '@/components/TouristCityMap';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -13,6 +14,11 @@ export default function Home() {
   const [query, setQuery] = React.useState('');
   const [nearby, setNearby] = React.useState<any[]>([]);
   const [searching, setSearching] = React.useState(false);
+  const [touristLocation, setTouristLocation] = React.useState<[number, number] | null>(null);
+  const [poiList, setPoiList] = React.useState<any[]>([]);
+  const [nearbyBusinesses, setNearbyBusinesses] = React.useState<any[]>([]);
+  const [mapLoading, setMapLoading] = React.useState(false);
+  const [mapError, setMapError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     try {
@@ -42,6 +48,71 @@ export default function Home() {
     };
     fetchBusinesses();
   }, []);
+
+  const loadTouristMapData = async (lat: number, lng: number) => {
+    setMapLoading(true);
+    setMapError(null);
+    try {
+      const poiParams = new URLSearchParams({
+        lat: String(lat),
+        lng: String(lng),
+        radius_km: '5',
+        limit: '12',
+      });
+      const bizParams = new URLSearchParams({
+        lat: String(lat),
+        lng: String(lng),
+        radius_km: '5',
+        limit: '12',
+      });
+      const [poiResp, bizResp] = await Promise.all([
+        fetch(`/api/poi/nearby?${poiParams.toString()}`),
+        fetch(`/api/businesses/nearby?${bizParams.toString()}`),
+      ]);
+      const poiData = await poiResp.json();
+      const bizData = await bizResp.json();
+      setPoiList(Array.isArray(poiData) ? poiData : []);
+      setNearbyBusinesses(Array.isArray(bizData) ? bizData : []);
+    } catch (e) {
+      setMapError(t('tourist_map_error'));
+    } finally {
+      setMapLoading(false);
+    }
+  };
+
+  const requestTouristLocation = () => {
+    if (!navigator.geolocation) {
+      setMapError(t('tourist_map_no_geo'));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setTouristLocation([lat, lng]);
+        loadTouristMapData(lat, lng);
+      },
+      () => setMapError(t('tourist_map_error'))
+    );
+  };
+
+  React.useEffect(() => {
+    if (role !== 'tourist') return;
+    const session = getSession();
+    const touristId = session?.tourist_id || localStorage.getItem('ola-tourist-id');
+    if (!touristId) return;
+    fetch(`/api/tourists/${touristId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.lat && data?.lng) {
+          const lat = Number(data.lat);
+          const lng = Number(data.lng);
+          setTouristLocation([lat, lng]);
+          loadTouristMapData(lat, lng);
+        }
+      })
+      .catch(() => {});
+  }, [role]);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -177,6 +248,98 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {role === 'tourist' && (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold">{t('tourist_map_title')}</h2>
+              <p className="text-sm text-[var(--muted)]">{t('tourist_map_help')}</p>
+            </div>
+            <button
+              onClick={requestTouristLocation}
+              className="border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-2 rounded-xl text-sm"
+            >
+              {t('tourist_map_cta')}
+            </button>
+          </div>
+
+          {mapError ? <div className="text-sm text-red-600">{mapError}</div> : null}
+
+          {touristLocation ? (
+            <TouristCityMap
+              center={touristLocation}
+              userLocation={touristLocation}
+              pois={poiList}
+              businesses={nearbyBusinesses}
+            />
+          ) : (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 text-sm text-gray-500">
+              {t('tourist_map_empty')}
+            </div>
+          )}
+
+          {mapLoading ? (
+            <div className="text-sm text-gray-500">{t('tourist_map_loading')}</div>
+          ) : null}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
+                {t('tourist_places')}
+              </h3>
+              <div className="space-y-3">
+                {poiList.length === 0 ? (
+                  <div className="text-sm text-gray-500">{t('tourist_places_empty')}</div>
+                ) : (
+                  poiList.map((poi: any) => (
+                    <div key={`poi-${poi.id || poi.title}`} className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-medium">{poi.title}</div>
+                      <a
+                        className="text-xs text-[var(--primary)] font-bold"
+                        href={`https://www.google.com/maps/search/?api=1&query=${poi.lat},${poi.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t('open_in_maps')}
+                      </a>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-100 p-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
+                {t('tourist_locales')}
+              </h3>
+              <div className="space-y-3">
+                {nearbyBusinesses.length === 0 ? (
+                  <div className="text-sm text-gray-500">{t('tourist_locales_empty')}</div>
+                ) : (
+                  nearbyBusinesses.map((biz: any) => (
+                    <div key={`biz-${biz.id}`} className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-sm font-medium">{biz.name}</div>
+                        {biz.distance_km ? (
+                          <div className="text-xs text-gray-400">{biz.distance_km} km</div>
+                        ) : null}
+                      </div>
+                      <a
+                        className="text-xs text-[var(--primary)] font-bold"
+                        href={`https://www.google.com/maps/search/?api=1&query=${biz.lat},${biz.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t('open_in_maps')}
+                      </a>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-bold">{t('discover')}</h2>
