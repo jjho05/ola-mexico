@@ -4,7 +4,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Star, Map } from 'lucide-react';
 import { getSession } from '@/lib/auth';
-import TouristCityMap from '@/components/TouristCityMap';
+import dynamic from 'next/dynamic';
+
+const TouristCityMap = dynamic(() => import('@/components/TouristCityMap'), { ssr: false });
 
 export default function Home() {
   const { t } = useTranslation();
