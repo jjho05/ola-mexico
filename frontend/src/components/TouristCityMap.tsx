@@ -26,6 +26,7 @@ type Props = {
   userLocation?: [number, number] | null;
   pois: POI[];
   businesses: Business[];
+  route?: [number, number][];
 };
 
 const iconShadow = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
@@ -53,11 +54,20 @@ const iconPoi = L.icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
+const iconRoute = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
-export default function TouristCityMap({ center, userLocation, pois, businesses }: Props) {
+export default function TouristCityMap({ center, userLocation, pois, businesses, route }: Props) {
   const mapRef = React.useRef<HTMLDivElement | null>(null);
   const mapInstance = React.useRef<L.Map | null>(null);
   const markersLayer = React.useRef<L.LayerGroup | null>(null);
+  const routeLayer = React.useRef<L.LayerGroup | null>(null);
 
   React.useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -71,13 +81,16 @@ export default function TouristCityMap({ center, userLocation, pois, businesses 
     }).addTo(map);
     mapInstance.current = map;
     markersLayer.current = L.layerGroup().addTo(map);
+    routeLayer.current = L.layerGroup().addTo(map);
   }, []);
 
   React.useEffect(() => {
-    if (!mapInstance.current || !markersLayer.current) return;
+    if (!mapInstance.current || !markersLayer.current || !routeLayer.current) return;
     mapInstance.current.setView(center, 13);
     markersLayer.current.clearLayers();
+    routeLayer.current.clearLayers();
     const layer = markersLayer.current;
+    const rLayer = routeLayer.current;
 
     if (userLocation) {
       L.marker(userLocation, { icon: iconUser })
@@ -100,7 +113,16 @@ export default function TouristCityMap({ center, userLocation, pois, businesses 
         )
         .addTo(layer);
     });
-  }, [center, userLocation, pois, businesses]);
+
+    if (route && route.length > 1) {
+      L.polyline(route, { color: '#6D28D9', weight: 4, opacity: 0.8 }).addTo(rLayer);
+      route.forEach((point, idx) => {
+        L.marker(point, { icon: iconRoute })
+          .bindPopup(`Parada ${idx + 1}`)
+          .addTo(rLayer);
+      });
+    }
+  }, [center, userLocation, pois, businesses, route]);
 
   React.useEffect(() => {
     return () => {

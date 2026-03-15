@@ -8,6 +8,7 @@ const MOCK_DATA = [
   {
     id: 1,
     name: "Tacos El Guero",
+    category: "Comida y Bebida",
     description: "Auténticos tacos al pastor con receta de la abuela. No te pierdas la salsa de habanero.",
     image_url: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47",
     address: "Centro Histórico"
@@ -15,6 +16,7 @@ const MOCK_DATA = [
   {
     id: 2,
     name: "Artesanías El Jaguar",
+    category: "Artesanías",
     description: "Artesanías únicas de manos indígenas. Barro negro, textiles y alebrijes.",
     image_url: "https://images.unsplash.com/photo-1590076215667-873d3215904a",
     address: "Colonia Juárez"
@@ -22,6 +24,7 @@ const MOCK_DATA = [
   {
     id: 3,
     name: "Cantina La Bota",
+    category: "Vida Nocturna",
     description: "Cerveza artesanal y chamorros. El mejor ambiente bohemio de la ciudad.",
     image_url: "https://images.unsplash.com/photo-1514933651103-005eec06c04b",
     address: "Calle San Jerónimo"
@@ -32,6 +35,15 @@ export default function SwipePage() {
   const [index, setIndex] = useState(0);
 
   const handleSwipe = (direction: 'left' | 'right') => {
+    const current = MOCK_DATA[index];
+    if (direction === 'right' && current?.category) {
+      try {
+        const raw = localStorage.getItem('ola-swipe-categories');
+        const data = raw ? JSON.parse(raw) : {};
+        data[current.category] = (data[current.category] || 0) + 1;
+        localStorage.setItem('ola-swipe-categories', JSON.stringify(data));
+      } catch {}
+    }
     console.log(`Swiped ${direction} on ${MOCK_DATA[index].name}`);
     setIndex((prev) => (prev + 1) % MOCK_DATA.length);
   };

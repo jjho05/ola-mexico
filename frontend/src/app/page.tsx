@@ -21,6 +21,7 @@ export default function Home() {
   const [nearbyBusinesses, setNearbyBusinesses] = React.useState<any[]>([]);
   const [mapLoading, setMapLoading] = React.useState(false);
   const [mapError, setMapError] = React.useState<string | null>(null);
+  const [likedCategories, setLikedCategories] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     try {
@@ -49,6 +50,19 @@ export default function Home() {
       }
     };
     fetchBusinesses();
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ola-swipe-categories');
+      if (raw) {
+        const data = JSON.parse(raw);
+        const top = Object.entries(data)
+          .sort((a: any, b: any) => (b[1] as number) - (a[1] as number))
+          .map(([key]) => key);
+        setLikedCategories(top.slice(0, 3));
+      }
+    } catch {}
   }, []);
 
   const loadTouristMapData = async (lat: number, lng: number) => {
@@ -97,6 +111,31 @@ export default function Home() {
       () => setMapError(t('tourist_map_error'))
     );
   };
+
+  const bestCategory = React.useMemo(() => {
+    if (!nearbyBusinesses.length) return null;
+    const counts: Record<string, number> = {};
+    nearbyBusinesses.forEach((biz: any) => {
+      const cat = biz.category || 'Otros';
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  }, [nearbyBusinesses]);
+
+  const routeStops = React.useMemo(() => {
+    if (!nearbyBusinesses.length) return [];
+    let filtered = nearbyBusinesses;
+    if (likedCategories.length) {
+      filtered = nearbyBusinesses.filter((b: any) => likedCategories.includes(b.category));
+    }
+    const list = (filtered.length ? filtered : nearbyBusinesses).slice(0, 4);
+    return list;
+  }, [nearbyBusinesses, likedCategories]);
+
+  const routePoints = React.useMemo(() => {
+    if (!touristLocation || routeStops.length === 0) return [];
+    return [touristLocation, ...routeStops.map((b: any) => [b.lat, b.lng])];
+  }, [touristLocation, routeStops]);
 
   React.useEffect(() => {
     if (role !== 'tourist') return;
@@ -274,6 +313,7 @@ export default function Home() {
               userLocation={touristLocation}
               pois={poiList}
               businesses={nearbyBusinesses}
+              route={routePoints}
             />
           ) : (
             <div className="bg-white border border-gray-100 rounded-2xl p-4 text-sm text-gray-500">
@@ -285,7 +325,46 @@ export default function Home() {
             <div className="text-sm text-gray-500">{t('tourist_map_loading')}</div>
           ) : null}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
+                {t('tourist_insights')}
+              </h3>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div>{t('tourist_insight_places')}: <span className="font-bold">{poiList.length}</span></div>
+                <div>{t('tourist_insight_locales')}: <span className="font-bold">{nearbyBusinesses.length}</span></div>
+                <div>{t('tourist_insight_topcat')}: <span className="font-bold">{bestCategory || t('tourist_insight_none')}</span></div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-100 p-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
+                {t('tourist_route_title')}
+              </h3>
+              {routeStops.length === 0 ? (
+                <div className="text-sm text-gray-500">{t('tourist_route_empty')}</div>
+              ) : (
+                <div className="space-y-2 text-sm text-gray-700">
+                  {routeStops.map((stop: any, idx: number) => (
+                    <div key={`route-${stop.id}`} className="flex items-center justify-between">
+                      <span>{idx + 1}. {stop.name}</span>
+                      <a
+                        className="text-xs text-[var(--primary)] font-bold"
+                        href={`https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t('open_in_maps')}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {likedCategories.length ? (
+                <div className="text-xs text-gray-400 mt-3">
+                  {t('tourist_route_based')}: {likedCategories.join(', ')}
+                </div>
+              ) : null}
+            </div>
             <div className="bg-white rounded-2xl border border-gray-100 p-4">
               <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
                 {t('tourist_places')}
