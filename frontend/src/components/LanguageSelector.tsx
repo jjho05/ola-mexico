@@ -69,9 +69,9 @@ export function LanguageSelector() {
 
   return (
     <div className="flex items-center gap-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">{t('language_label')}</label>
+      <label className="hidden sm:inline text-xs font-bold uppercase tracking-widest text-[var(--muted)]">{t('language_label')}</label>
       <select
-        className="border border-gray-200 rounded-lg px-2 py-1 text-sm bg-white"
+        className="border border-gray-200 rounded-lg px-2 py-1 text-xs sm:text-sm bg-white"
         value={i18n.language}
         onChange={(e) => {
           const lang = e.target.value;

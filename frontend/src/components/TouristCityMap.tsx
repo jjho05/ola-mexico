@@ -135,7 +135,7 @@ export default function TouristCityMap({ center, userLocation, pois, businesses,
 
   return (
     <div className="rounded-3xl overflow-hidden border border-gray-200 shadow-sm">
-      <div ref={mapRef} className="h-80 w-full" />
+      <div ref={mapRef} className="h-64 sm:h-80 w-full" />
     </div>
   );
 }

@@ -262,11 +262,11 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-4xl mx-auto">
+    <div className="flex flex-col gap-8 w-full max-w-5xl mx-auto">
       <header className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-4xl font-black italic tracking-tighter">
-            OLA <span className="text-[var(--primary)]">MÉXICO</span>
+          <h1 className="text-3xl sm:text-4xl font-black italic tracking-tighter">
+            VIVE <span className="text-[var(--primary)]">MÉXICO</span>
           </h1>
           <span className="bg-[var(--secondary)] text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-widest rotate-2 shadow-lg">
             2026 WC
@@ -281,16 +281,16 @@ export default function Home() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleSearch}
-              className="bg-[var(--primary)] text-white font-bold px-4 py-3 rounded-xl"
+              className="w-full sm:w-auto bg-[var(--primary)] text-white font-bold px-4 py-3 rounded-xl"
             >
               Buscar
             </button>
             <button
               onClick={loadNearby}
-              className="border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-3 rounded-xl"
+              className="w-full sm:w-auto border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-3 rounded-xl"
             >
               Cerca de mí
             </button>
@@ -300,14 +300,14 @@ export default function Home() {
 
       {role === 'tourist' && (
         <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold">{t('tourist_map_title')}</h2>
               <p className="text-sm text-[var(--muted)]">{t('tourist_map_help')}</p>
             </div>
             <button
               onClick={requestTouristLocation}
-              className="border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-2 rounded-xl text-sm"
+              className="w-full sm:w-auto border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-2 rounded-xl text-sm"
             >
               {t('tourist_map_cta')}
             </button>

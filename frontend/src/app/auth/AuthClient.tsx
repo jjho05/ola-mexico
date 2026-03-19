@@ -87,7 +87,7 @@ export default function AuthClient() {
   };
 
   return (
-    <div className="min-h-[70vh] w-full max-w-md mx-auto flex flex-col gap-6 justify-center">
+    <div className="min-h-[70vh] w-full max-w-md mx-auto flex flex-col gap-6 justify-center px-4 sm:px-0">
       <header className="text-center relative">
         <div className="inline-flex items-center gap-2 bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
           Actualizado {BUILD_SHA}

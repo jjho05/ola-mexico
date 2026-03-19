@@ -467,7 +467,7 @@ export default function MerchantDashboard() {
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(checkoutUrl)}`}
                       alt="QR de pago"
-                      className="w-64 h-64"
+                      className="w-56 h-56 sm:w-64 sm:h-64"
                     />
                     <a
                       href={checkoutUrl}
@@ -490,7 +490,7 @@ export default function MerchantDashboard() {
             ) : (
               <div className="space-y-3">
                 {businesses.map((biz) => (
-                  <div key={biz.id} className="border rounded-2xl p-4 flex items-center justify-between">
+                  <div key={biz.id} className="border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                       <p className="font-bold">{biz.name}</p>
                       <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -498,7 +498,7 @@ export default function MerchantDashboard() {
                       </p>
                     </div>
                     <button
-                      className="text-sm text-[var(--primary)] font-bold"
+                      className="text-sm text-[var(--primary)] font-bold self-start sm:self-auto"
                       onClick={() => {
                         setBusinessId(biz.id);
                         setBusinessName(biz.name || '');

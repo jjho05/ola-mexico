@@ -22,7 +22,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {!hideNav && <Navbar />}
-      <main className="pt-20 pb-24 px-4 min-h-screen">
+      <main className="pt-20 pb-28 sm:pb-24 px-4 sm:px-6 min-h-screen">
         {children}
       </main>
       {!hideNav && hasSession && <BottomNav />}

@@ -67,7 +67,7 @@ export default function ScannerPage() {
         <p className="text-gray-500">{t('menu_scanner_subtitle')}</p>
       </header>
 
-      <div className="relative aspect-square w-full bg-black rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center border-4 border-white">
+      <div className="relative aspect-square sm:aspect-video w-full bg-black rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center border-4 border-white">
         {!scanning && !result && (
           <div className="flex flex-col items-center gap-4 text-white">
             <button 
@@ -99,7 +99,7 @@ export default function ScannerPage() {
         )}
 
         {result && (
-          <div className="absolute inset-0 bg-white/95 p-6 overflow-y-auto">
+          <div className="absolute inset-0 bg-white/95 p-4 sm:p-6 overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-bold text-xl">{t('menu_translated')}</h2>
               <div className="flex items-center gap-3">
