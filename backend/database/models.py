@@ -13,6 +13,8 @@ class Business(BaseModel):
     lng: Optional[float] = None
     rating: float
     address: str
+    price_level: Optional[str] = None
+    is_open: Optional[bool] = None
 
 class SwipeAction(BaseModel):
     user_id: str

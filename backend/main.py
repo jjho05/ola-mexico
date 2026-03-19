@@ -472,10 +472,22 @@ async def get_nearby_businesses(lat: float, lng: float, radius_km: float = 3.0, 
     return results[:limit]
 
 @app.get("/api/businesses/search")
-async def search_businesses(query: str, lat: Optional[float] = None, lng: Optional[float] = None, limit: int = 20):
+async def search_businesses(
+    query: str, 
+    lat: Optional[float] = None, 
+    lng: Optional[float] = None, 
+    limit: int = 20,
+    price_level: Optional[str] = None,
+    is_open: Optional[str] = None
+):
     businesses = await get_businesses()
     q = query.lower().strip()
     filtered = [b for b in businesses if q in b.get("name", "").lower()]
+    
+    if price_level:
+        filtered = [b for b in filtered if b.get("price_level") == price_level]
+    if is_open == "true":
+        filtered = [b for b in filtered if b.get("is_open") is not False]
     if lat is not None and lng is not None:
         for biz in filtered:
             try:

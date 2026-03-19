@@ -23,6 +23,8 @@ export default function MerchantDashboard() {
   const [businessName, setBusinessName] = React.useState('');
   const [category, setCategory] = React.useState('Comida y Bebida');
   const [address, setAddress] = React.useState('');
+  const [priceLevel, setPriceLevel] = React.useState('$$');
+  const [isOpen, setIsOpen] = React.useState(true);
   const [lat, setLat] = React.useState<number | null>(null);
   const [lng, setLng] = React.useState<number | null>(null);
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
@@ -171,6 +173,8 @@ export default function MerchantDashboard() {
         lng,
         rating: 5.0,
         address,
+        price_level: priceLevel,
+        is_open: isOpen,
       };
       const url = businessId
         ? `/api/merchants/${merchantId}/businesses/${businessId}`
@@ -198,6 +202,8 @@ export default function MerchantDashboard() {
       setBusinessName('');
       setCategory('Comida y Bebida');
       setAddress('');
+      setPriceLevel('$$');
+      setIsOpen(true);
       setLat(null);
       setLng(null);
       setSuggestions([]);
@@ -352,6 +358,31 @@ export default function MerchantDashboard() {
                   <option>Servicios</option>
                   <option>Alojamiento</option>
                 </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Precio</label>
+                  <select
+                    className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                    value={priceLevel}
+                    onChange={(e) => setPriceLevel(e.target.value)}
+                  >
+                    <option value="$">$ (Económico)</option>
+                    <option value="$$">$$ (Moderado)</option>
+                    <option value="$$$">$$$ (Costoso)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Estado</label>
+                  <select
+                    className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                    value={isOpen ? 'true' : 'false'}
+                    onChange={(e) => setIsOpen(e.target.value === 'true')}
+                  >
+                    <option value="true">Abierto</option>
+                    <option value="false">Cerrado</option>
+                  </select>
+                </div>
               </div>
               <div className="relative">
                 <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('search_location')}</label>
@@ -525,6 +556,8 @@ export default function MerchantDashboard() {
                         setBusinessName(biz.name || '');
                         setCategory(biz.category || 'Comida y Bebida');
                         setAddress(biz.address || '');
+                        setPriceLevel(biz.price_level || '$$');
+                        setIsOpen(biz.is_open !== false);
                         setLat(biz.lat || null);
                         setLng(biz.lng || null);
                       }}

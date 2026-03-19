@@ -15,6 +15,8 @@ export default function Home() {
   const [loading, setLoading] = React.useState(true);
   const [role, setRole] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState('');
+  const [filterPrice, setFilterPrice] = React.useState('');
+  const [filterOpen, setFilterOpen] = React.useState('');
   const [nearby, setNearby] = React.useState<any[]>([]);
   const [searching, setSearching] = React.useState(false);
   const [touristLocation, setTouristLocation] = React.useState<[number, number] | null>(null);
@@ -183,6 +185,8 @@ export default function Home() {
         });
       }
       const params = new URLSearchParams({ query: query.trim() });
+      if (filterPrice) params.set('price_level', filterPrice);
+      if (filterOpen) params.set('is_open', filterOpen);
       if (lat !== null && lng !== null) {
         params.set('lat', String(lat));
         params.set('lng', String(lng));
@@ -279,28 +283,50 @@ export default function Home() {
           </span>
         </div>
         <p className="text-[var(--muted)] font-medium">Nivela la cancha digital y apoya lo local.</p>
-        <div className="mt-4 flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            placeholder="Buscar local por nombre"
-            aria-label="Buscar local por nombre"
-            className="flex-1 p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <div className="flex flex-col sm:flex-row gap-2">
-            <button
-              onClick={handleSearch}
-              className="w-full sm:w-auto bg-[var(--primary)] text-white font-bold px-4 py-3 rounded-xl"
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="Buscar local por nombre"
+              aria-label="Buscar local por nombre"
+              className="flex-1 p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={handleSearch}
+                className="w-full sm:w-auto bg-[var(--primary)] text-white font-bold px-4 py-3 rounded-xl"
+              >
+                Buscar
+              </button>
+              <button
+                onClick={loadNearby}
+                className="w-full sm:w-auto border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-3 rounded-xl"
+              >
+                Cerca de mí
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-2 text-sm overflow-x-auto pb-2">
+            <select 
+              className="p-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-[var(--primary)] font-medium text-gray-600" 
+              value={filterPrice} 
+              onChange={(e)=>setFilterPrice(e.target.value)}
             >
-              Buscar
-            </button>
-            <button
-              onClick={loadNearby}
-              className="w-full sm:w-auto border-2 border-[var(--primary)] text-[var(--primary)] font-bold px-4 py-3 rounded-xl"
+              <option value="">Precio: Todos</option>
+              <option value="$">$ Económico</option>
+              <option value="$$">$$ Moderado</option>
+              <option value="$$$">$$$ Costoso</option>
+            </select>
+            <select 
+              className="p-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-[var(--primary)] font-medium text-gray-600" 
+              value={filterOpen} 
+              onChange={(e)=>setFilterOpen(e.target.value)}
             >
-              Cerca de mí
-            </button>
+              <option value="">Estado: Todos</option>
+              <option value="true">🟢 Abierto Ahora</option>
+            </select>
           </div>
         </div>
       </header>
