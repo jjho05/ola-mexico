@@ -35,8 +35,8 @@ export const clearSession = () => {
   } catch {}
 };
 
-export const getAuthHeaders = () => {
+export const getAuthHeaders = (): HeadersInit | undefined => {
   const session = getSession();
-  if (!session?.token) return {};
+  if (!session?.token) return undefined;
   return { Authorization: `Bearer ${session.token}` };
 };

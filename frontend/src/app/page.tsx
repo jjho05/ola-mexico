@@ -147,8 +147,9 @@ export default function Home() {
     const session = getSession();
     const touristId = session?.tourist_id || localStorage.getItem('vive-mexico-tourist-id');
     if (!touristId) return;
+    const authHeaders = getAuthHeaders();
     fetch(`/api/tourists/${touristId}`, {
-      headers: { ...getAuthHeaders() },
+      headers: authHeaders ? { ...authHeaders } : undefined,
     })
       .then((r) => r.json())
       .then((data) => {

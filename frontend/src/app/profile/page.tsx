@@ -57,8 +57,9 @@ export default function ProfilePage() {
     if (session.role === 'merchant') {
       const merchantId = session.merchant_id || localStorage.getItem('vive-mexico-merchant-id');
       if (merchantId) {
+        const authHeaders = getAuthHeaders();
         fetch(`/api/merchants/${merchantId}`, {
-          headers: { ...getAuthHeaders() },
+          headers: authHeaders ? { ...authHeaders } : undefined,
         })
           .then((r) => r.json())
           .then((data) => {
@@ -69,8 +70,9 @@ export default function ProfilePage() {
     }
 
     if (session.role === 'tourist' && session.tourist_id) {
+      const authHeaders = getAuthHeaders();
       fetch(`/api/tourists/${session.tourist_id}`, {
-        headers: { ...getAuthHeaders() },
+        headers: authHeaders ? { ...authHeaders } : undefined,
       })
         .then((r) => r.json())
         .then((data) => {
@@ -121,9 +123,12 @@ export default function ProfilePage() {
       };
       const endpoint = touristId ? `/api/tourists/${touristId}` : "/api/tourists/register";
       const method = touristId ? "PUT" : "POST";
+      const authHeaders = getAuthHeaders();
       const response = await fetch(endpoint, {
         method,
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        headers: authHeaders
+          ? { "Content-Type": "application/json", ...authHeaders }
+          : { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error("error");
@@ -142,9 +147,10 @@ export default function ProfilePage() {
   const deleteTourist = async () => {
     if (!touristId) return;
     try {
+      const authHeaders = getAuthHeaders();
       const response = await fetch(`/api/tourists/${touristId}`, {
         method: "DELETE",
-        headers: { ...getAuthHeaders() },
+        headers: authHeaders ? { ...authHeaders } : undefined,
       });
       if (!response.ok) throw new Error("error");
       localStorage.removeItem('vive-mexico-tourist-id');

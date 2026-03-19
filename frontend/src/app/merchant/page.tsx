@@ -87,8 +87,9 @@ export default function MerchantDashboard() {
 
   const fetchBusinesses = async (id: string) => {
     try {
+      const authHeaders = getAuthHeaders();
       const resp = await fetch(`/api/merchants/${id}/businesses`, {
-        headers: { ...getAuthHeaders() },
+        headers: authHeaders ? { ...authHeaders } : undefined,
       });
       const raw = await resp.text();
       let data: any = null;
@@ -105,8 +106,9 @@ export default function MerchantDashboard() {
 
   const fetchMerchant = async (id: string) => {
     try {
+      const authHeaders = getAuthHeaders();
       const resp = await fetch(`/api/merchants/${id}`, {
-        headers: { ...getAuthHeaders() },
+        headers: authHeaders ? { ...authHeaders } : undefined,
       });
       const data = await resp.json();
       if (data?.name) setMerchantName(data.name);
@@ -116,8 +118,9 @@ export default function MerchantDashboard() {
 
   const fetchStripeStatus = async (id: string) => {
     try {
+      const authHeaders = getAuthHeaders();
       const resp = await fetch(`/api/stripe/connect/status?merchant_id=${id}`, {
-        headers: { ...getAuthHeaders() },
+        headers: authHeaders ? { ...authHeaders } : undefined,
       });
       const data = await resp.json();
       setStripeStatus(data);
@@ -133,9 +136,12 @@ export default function MerchantDashboard() {
         payload.id = session.id;
         payload.email = session.email;
       }
+      const authHeaders = getAuthHeaders();
       const resp = await fetch('/api/merchants', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        headers: authHeaders
+          ? { 'Content-Type': 'application/json', ...authHeaders }
+          : { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const data = await resp.json();
@@ -170,9 +176,12 @@ export default function MerchantDashboard() {
         ? `/api/merchants/${merchantId}/businesses/${businessId}`
         : `/api/merchants/${merchantId}/businesses`;
       const method = businessId ? 'PUT' : 'POST';
+      const authHeaders = getAuthHeaders();
       const resp = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        headers: authHeaders
+          ? { 'Content-Type': 'application/json', ...authHeaders }
+          : { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const raw = await resp.text();
@@ -202,9 +211,12 @@ export default function MerchantDashboard() {
     setStripeLoading(true);
     setPaymentError(null);
     try {
+      const authHeaders = getAuthHeaders();
       const resp = await fetch('/api/stripe/connect/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        headers: authHeaders
+          ? { 'Content-Type': 'application/json', ...authHeaders }
+          : { 'Content-Type': 'application/json' },
         body: JSON.stringify({ merchant_id: merchantId }),
       });
       const raw = await resp.text();
@@ -239,9 +251,12 @@ export default function MerchantDashboard() {
       const idempotencyKey = (globalThis.crypto && 'randomUUID' in globalThis.crypto)
         ? globalThis.crypto.randomUUID()
         : String(Date.now());
+      const authHeaders = getAuthHeaders();
       const resp = await fetch('/api/payments/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        headers: authHeaders
+          ? { 'Content-Type': 'application/json', ...authHeaders }
+          : { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           merchant_id: merchantId,
           amount_mxn: amount,
