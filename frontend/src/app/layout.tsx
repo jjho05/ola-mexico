@@ -7,7 +7,7 @@ import AppShell from "@/components/AppShell";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ola México | World Cup 2026",
+  title: "Vive México | World Cup 2026",
   description: "Connect with local businesses and experience the authentic Mexico.",
 };
 

@@ -20,7 +20,7 @@ from backend.services.stripe_service import (
     create_checkout_session,
     get_account_status,
 )
-app = FastAPI(title="Ola México API")
+app = FastAPI(title="Vive México API")
 
 app.include_router(vision_router)
 

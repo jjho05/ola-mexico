@@ -445,7 +445,7 @@ export default function ProfilePage() {
       </div>
       
       <div className="mt-8 text-center px-4">
-        <p className="text-xs text-gray-400 font-medium">Ola México - Edición Especial Mundial 2026</p>
+        <p className="text-xs text-gray-400 font-medium">Vive México - Edición Especial Mundial 2026</p>
         <p className="text-xs text-gray-400 font-medium">Versión 1.0.0 (Cloud Build)</p>
       </div>
     </div>

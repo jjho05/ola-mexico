@@ -152,7 +152,7 @@ export default function MerchantDashboard() {
       const payload = {
         name: businessName,
         category,
-        description: 'Local registrado en Ola México.',
+        description: 'Local registrado en Vive México.',
         tags: [category.toLowerCase()],
         image_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
         lat,
@@ -239,7 +239,7 @@ export default function MerchantDashboard() {
         body: JSON.stringify({
           merchant_id: merchantId,
           amount_mxn: amount,
-          description: payDescription || 'Cobro Ola México',
+          description: payDescription || 'Cobro Vive México',
           idempotency_key: idempotencyKey,
         }),
       });

@@ -5,7 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
-      "welcome": "Welcome to Ola México",
+      "welcome": "Welcome to Vive México",
       "discover": "Discover",
       "swipe": "Swipe",
       "scanner": "Scanner",
@@ -48,7 +48,7 @@ const resources = {
       ,"merchant_register_button": "Register business"
       ,"merchant_processing": "Processing..."
       ,"merchant_welcome": "Welcome partner!"
-      ,"merchant_welcome_help": "Your business is now part of Ola México."
+      ,"merchant_welcome_help": "Your business is now part of Vive México."
       ,"go_home": "Go to Home"
       ,"menu_digital": "Your digital menu"
       ,"menu_upload_help": "Upload a photo of your menu or price list."
@@ -100,7 +100,7 @@ const resources = {
   },
   es: {
     translation: {
-      "welcome": "Bienvenido a Ola México",
+      "welcome": "Bienvenido a Vive México",
       "discover": "Descubrir",
       "swipe": "Deslizar",
       "scanner": "Escáner",
@@ -143,7 +143,7 @@ const resources = {
       ,"merchant_register_button": "Registrar negocio"
       ,"merchant_processing": "Procesando..."
       ,"merchant_welcome": "¡Bienvenido Socio!"
-      ,"merchant_welcome_help": "Tu negocio ya es parte de la Ola México."
+      ,"merchant_welcome_help": "Tu negocio ya es parte de Vive México."
       ,"go_home": "Ir al Inicio"
       ,"menu_digital": "Tu Menú Digital"
       ,"menu_upload_help": "Sube una foto de tu menú o lista de precios."
@@ -238,7 +238,7 @@ const resources = {
       ,"merchant_register_button": "비즈니스 등록"
       ,"merchant_processing": "처리 중..."
       ,"merchant_welcome": "환영합니다!"
-      ,"merchant_welcome_help": "가게가 Ola México에 등록되었습니다."
+      ,"merchant_welcome_help": "가게가 Vive México에 등록되었습니다."
       ,"go_home": "홈으로"
       ,"menu_digital": "디지털 메뉴"
       ,"menu_upload_help": "메뉴 사진을 업로드하세요."
@@ -257,7 +257,7 @@ const resources = {
   },
   de: {
     translation: {
-      "welcome": "Willkommen bei Ola México",
+      "welcome": "Willkommen bei Vive México",
       "discover": "Entdecken",
       "swipe": "Wischen",
       "scanner": "Scanner",
@@ -300,7 +300,7 @@ const resources = {
       ,"merchant_register_button": "Geschäft registrieren"
       ,"merchant_processing": "Wird verarbeitet..."
       ,"merchant_welcome": "Willkommen!"
-      ,"merchant_welcome_help": "Dein Geschäft ist jetzt bei Ola México."
+      ,"merchant_welcome_help": "Dein Geschäft ist jetzt bei Vive México."
       ,"go_home": "Zur Startseite"
       ,"menu_digital": "Dein digitales Menü"
       ,"menu_upload_help": "Lade ein Foto deines Menüs hoch."
@@ -319,7 +319,7 @@ const resources = {
   },
   fr: {
     translation: {
-      "welcome": "Bienvenue à Ola México",
+      "welcome": "Bienvenue à Vive México",
       "discover": "Découvrir",
       "swipe": "Balayer",
       "scanner": "Scanner",
@@ -362,7 +362,7 @@ const resources = {
       ,"merchant_register_button": "Enregistrer"
       ,"merchant_processing": "Traitement..."
       ,"merchant_welcome": "Bienvenue !"
-      ,"merchant_welcome_help": "Ton commerce fait partie d’Ola México."
+      ,"merchant_welcome_help": "Ton commerce fait partie de Vive México."
       ,"go_home": "Aller à l’accueil"
       ,"menu_digital": "Ton menu numérique"
       ,"menu_upload_help": "Téléverse une photo du menu."
@@ -424,7 +424,7 @@ const resources = {
       ,"merchant_register_button": "تسجيل النشاط"
       ,"merchant_processing": "جارٍ المعالجة..."
       ,"merchant_welcome": "مرحبًا!"
-      ,"merchant_welcome_help": "نشاطك أصبح جزءًا من Ola México."
+      ,"merchant_welcome_help": "نشاطك أصبح جزءًا من Vive México."
       ,"go_home": "العودة للرئيسية"
       ,"menu_digital": "قائمتك الرقمية"
       ,"menu_upload_help": "ارفع صورة للقائمة."
@@ -443,7 +443,7 @@ const resources = {
   },
   pt: {
     translation: {
-      "welcome": "Bem-vindo ao Ola México",
+      "welcome": "Bem-vindo ao Vive México",
       "discover": "Descobrir",
       "swipe": "Deslizar",
       "scanner": "Scanner",
@@ -486,7 +486,7 @@ const resources = {
       ,"merchant_register_button": "Registrar negócio"
       ,"merchant_processing": "Processando..."
       ,"merchant_welcome": "Bem-vindo!"
-      ,"merchant_welcome_help": "Seu negócio faz parte do Ola México."
+      ,"merchant_welcome_help": "Seu negócio faz parte do Vive México."
       ,"go_home": "Ir para início"
       ,"menu_digital": "Seu menu digital"
       ,"menu_upload_help": "Envie uma foto do menu."
@@ -505,7 +505,7 @@ const resources = {
   },
   no: {
     translation: {
-      "welcome": "Velkommen til Ola México",
+      "welcome": "Velkommen til Vive México",
       "discover": "Oppdag",
       "swipe": "Sveip",
       "scanner": "Skanner",
@@ -548,7 +548,7 @@ const resources = {
       ,"merchant_register_button": "Registrer bedrift"
       ,"merchant_processing": "Behandler..."
       ,"merchant_welcome": "Velkommen!"
-      ,"merchant_welcome_help": "Bedriften er nå en del av Ola México."
+      ,"merchant_welcome_help": "Bedriften er nå en del av Vive México."
       ,"go_home": "Gå til hjem"
       ,"menu_digital": "Din digitale meny"
       ,"menu_upload_help": "Last opp bilde av menyen."

@@ -1,5 +1,5 @@
 ---
-title: Ola México
+title: Vive México
 emoji: 🌮
 colorFrom: green
 colorTo: red
@@ -8,7 +8,7 @@ app_port: 7860
 pinned: false
 ---
 
-# Ola México — World Cup 2026 Edition
+# Vive México — World Cup 2026 Edition
 
 Super app para **nivelar la cancha digital** entre turistas del Mundial 2026 y micro‑negocios locales.  
 El objetivo es crear **descubrimiento auténtico**, **menús universales**, **pagos internacionales con QR**, y **datos útiles** para decisiones locales.
