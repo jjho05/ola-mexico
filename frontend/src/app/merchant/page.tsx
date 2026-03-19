@@ -34,6 +34,8 @@ export default function MerchantDashboard() {
   const [checkoutUrl, setCheckoutUrl] = React.useState<string | null>(null);
   const [feePreview, setFeePreview] = React.useState<{ amount: number; fee: number; total: number } | null>(null);
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
+  const payAmountNumber = Number(payAmount);
+  const canCharge = !!stripeStatus?.connected && !!stripeStatus?.charges_enabled;
 
   const mapEmbedSrc = (latVal: number, lngVal: number) => {
     const delta = 0.003;
@@ -75,7 +77,7 @@ export default function MerchantDashboard() {
       try {
         const params = new URLSearchParams({ q: address, format: 'json', limit: '5' });
         const resp = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-          headers: { 'User-Agent': 'ola-mexico/1.0' },
+          headers: { 'User-Agent': 'vive-mexico/1.0' },
         });
         if (!resp.ok) return;
         const data = await resp.json();
@@ -243,6 +245,10 @@ export default function MerchantDashboard() {
     setPaymentError(null);
     setStripeLoading(true);
     try {
+      if (!canCharge) {
+        setPaymentError('Stripe no está listo para cobros.');
+        return;
+      }
       const amount = Number(payAmount);
       if (!amount || amount <= 0) {
         setPaymentError('Monto inválido');
@@ -385,7 +391,11 @@ export default function MerchantDashboard() {
                   <div className="p-3 flex items-center justify-between text-xs text-gray-500">
                     <span>{t('selected_location')}</span>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                      href={
+                        lat !== null && lng !== null
+                          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+                          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="text-[var(--primary)] font-bold"
@@ -414,7 +424,15 @@ export default function MerchantDashboard() {
               Genera un QR para que el turista pague con Apple Pay, Google Pay o tarjeta.
             </p>
             {stripeStatus?.connected ? (
-              <div className="text-xs text-green-600 font-bold">Stripe conectado</div>
+              <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+                <span className="text-green-600">Stripe conectado</span>
+                <span className={`px-2 py-0.5 rounded-full ${stripeStatus?.charges_enabled ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                  Cobros: {stripeStatus?.charges_enabled ? 'OK' : 'Pendiente'}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full ${stripeStatus?.payouts_enabled ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                  Depósitos: {stripeStatus?.payouts_enabled ? 'OK' : 'Pendiente'}
+                </span>
+              </div>
             ) : (
               <button
                 onClick={connectStripe}
@@ -431,6 +449,8 @@ export default function MerchantDashboard() {
                   <input
                     type="number"
                     placeholder="Monto en MXN"
+                    inputMode="decimal"
+                    min="1"
                     className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                     value={payAmount}
                     onChange={(e) => setPayAmount(e.target.value)}
@@ -446,7 +466,7 @@ export default function MerchantDashboard() {
 
                 <button
                   onClick={createPaymentLink}
-                  disabled={stripeLoading || !payAmount}
+                  disabled={stripeLoading || !payAmountNumber || payAmountNumber <= 0 || !canCharge}
                   className={`w-full ${stripeLoading ? 'opacity-50' : 'bg-black'} text-white font-bold py-3 rounded-xl`}
                 >
                   {stripeLoading ? 'Generando…' : 'Generar QR de pago'}
