@@ -235,7 +235,11 @@ export default function MerchantDashboard() {
         return;
       }
       if (data?.url) {
-        window.location.href = data.url;
+        const newWindow = window.open(data.url, '_blank');
+        if (!newWindow) {
+          // Fallback if popup blocker prevents it
+          window.top ? (window.top.location.href = data.url) : (window.location.href = data.url);
+        }
       } else {
         toast.error(data?.message || 'No se pudo conectar Stripe');
       }
