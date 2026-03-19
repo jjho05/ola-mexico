@@ -15,7 +15,7 @@ import time
 from backend.api.routes import vision_router
 from backend.services.currency_service import currency_service
 from backend.database.supabase_client import supabase
-from backend.database.models import Business, Tourist, Merchant, AuthRegister, AuthLogin
+from backend.database.models import Business, Tourist, Merchant, AuthRegister, AuthLogin, Review
 from backend.services.geo_service import geo_service
 from backend.services.poi_service import poi_service
 from backend.services.stripe_service import (
