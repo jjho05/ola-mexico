@@ -385,8 +385,17 @@ async def update_merchant_business(request: Request, merchant_id: str, business_
 
 @app.get("/api/recommendations")
 async def get_recommendations(interests: Optional[str] = None):
-    # For now, just return all if no interests
-    return MOCK_BUSINESSES
+    businesses = await get_businesses()
+    if interests:
+        ints = [i.lower().strip() for i in interests.split(",")]
+        filtered = []
+        for b in businesses:
+            b_str = (b.get("category", "") + " " + " ".join(b.get("tags", [])) + " " + b.get("description", "")).lower()
+            if any(i in b_str for i in ints):
+                filtered.append(b)
+        if filtered:
+            return filtered
+    return businesses
 
 @app.post("/api/tourists/register")
 async def register_tourist(request: Request, tourist: Tourist):
