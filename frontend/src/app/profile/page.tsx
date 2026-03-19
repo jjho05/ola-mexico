@@ -91,7 +91,7 @@ export default function ProfilePage() {
       try {
         const params = new URLSearchParams({ q: touristAddress, format: 'json', limit: '5' });
         const resp = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-          headers: { 'User-Agent': 'ola-mexico/1.0' },
+          headers: { 'User-Agent': 'vive-mexico/1.0' },
         });
         if (!resp.ok) return;
         const data = await resp.json();
