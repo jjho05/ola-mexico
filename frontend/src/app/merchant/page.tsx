@@ -302,6 +302,7 @@ export default function MerchantDashboard() {
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Nombre</label>
               <input
                 type="text"
+                aria-label="Nombre del comerciante"
                 className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={merchantName}
                 onChange={(e) => setMerchantName(e.target.value)}
@@ -311,6 +312,7 @@ export default function MerchantDashboard() {
               <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Teléfono</label>
               <input
                 type="text"
+                aria-label="Teléfono del comerciante"
                 className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={merchantPhone}
                 onChange={(e) => setMerchantPhone(e.target.value)}
@@ -335,6 +337,7 @@ export default function MerchantDashboard() {
                 <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('merchant_business_name')}</label>
                 <input
                   type="text"
+                  aria-label={t('merchant_business_name')}
                   className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
@@ -343,6 +346,7 @@ export default function MerchantDashboard() {
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('merchant_category')}</label>
                 <select
+                  aria-label={t('merchant_category')}
                   className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -357,6 +361,7 @@ export default function MerchantDashboard() {
                 <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{t('search_location')}</label>
                 <input
                   type="text"
+                  aria-label={t('search_location')}
                   className="w-full p-3 rounded-xl border border-gray-200 mt-1 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -449,6 +454,7 @@ export default function MerchantDashboard() {
                   <input
                     type="number"
                     placeholder="Monto en MXN"
+                    aria-label="Monto en MXN"
                     inputMode="decimal"
                     min="1"
                     className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
@@ -458,6 +464,7 @@ export default function MerchantDashboard() {
                   <input
                     type="text"
                     placeholder="Descripción (opcional)"
+                    aria-label="Descripción (opcional)"
                     className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                     value={payDescription}
                     onChange={(e) => setPayDescription(e.target.value)}

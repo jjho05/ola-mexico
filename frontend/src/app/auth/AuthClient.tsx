@@ -142,6 +142,7 @@ export default function AuthClient() {
             <input
               type="text"
               placeholder={t('auth_name')}
+              aria-label={t('auth_name')}
               className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -150,6 +151,7 @@ export default function AuthClient() {
               <input
                 type="text"
                 placeholder={t('auth_phone')}
+                aria-label={t('auth_phone')}
                 className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -162,6 +164,7 @@ export default function AuthClient() {
           <input
             type="email"
             placeholder={t('auth_email')}
+            aria-label={t('auth_email')}
             className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -169,6 +172,7 @@ export default function AuthClient() {
           <input
             type="password"
             placeholder={t('auth_password')}
+            aria-label={t('auth_password')}
             className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

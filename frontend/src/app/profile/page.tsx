@@ -261,6 +261,7 @@ export default function ProfilePage() {
               <input
                 type="text"
                 placeholder="Nombre"
+                aria-label="Nombre"
                 className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={touristName}
                 onChange={(e) => setTouristName(e.target.value)}
@@ -268,6 +269,7 @@ export default function ProfilePage() {
               <input
                 type="email"
                 placeholder="Email (opcional)"
+                aria-label="Email (opcional)"
                 className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={touristEmail}
                 onChange={(e) => setTouristEmail(e.target.value)}
@@ -277,6 +279,7 @@ export default function ProfilePage() {
               <input
                 type="text"
                 placeholder={t('search_location')}
+                aria-label={t('search_location')}
                 className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
                 value={touristAddress}
                 onChange={(e) => setTouristAddress(e.target.value)}

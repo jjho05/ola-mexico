@@ -277,6 +277,7 @@ export default function Home() {
           <input
             type="text"
             placeholder="Buscar local por nombre"
+            aria-label="Buscar local por nombre"
             className="flex-1 p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
